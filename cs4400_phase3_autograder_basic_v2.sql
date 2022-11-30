@@ -4,136 +4,145 @@ set global transaction isolation level serializable;
 set global SQL_MODE = 'ANSI,TRADITIONAL';
 set names utf8mb4;
 set SQL_SAFE_UPDATES = 0;
+
 set @thisDatabase = 'restaurant_supply_express';
 use restaurant_supply_express;
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
 -- [1] Implement a capability to reset the database state easily
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
+
 drop procedure if exists magic44_reset_database_state;
 delimiter //
 create procedure magic44_reset_database_state ()
 begin
--- Purge and then reload all of the database rows back into the tables.
+	-- Purge and then reload all of the database rows back into the tables.
     -- Ensure that the data is deleted in reverse order with respect to the
     -- foreign key dependencies (i.e., from children up to parents).
-delete from payload;
-delete from ingredients;
-delete from drones where flown_by is null;
-delete from drones;
-delete from work_for;
-delete from delivery_services;
-delete from pilots;
-delete from workers;
-delete from restaurants;
-delete from employees;
-delete from restaurant_owners;
-delete from locations;
-delete from users;
+	delete from payload;
+	delete from ingredients;
+	delete from drones where flown_by is null;
+	delete from drones;
+	delete from work_for;
+	delete from delivery_services;
+	delete from pilots;
+	delete from workers;
+	delete from restaurants;
+	delete from employees;
+	delete from restaurant_owners;
+	delete from locations;
+	delete from users;
+
     -- Ensure that the data is inserted in order with respect to the
     -- foreign key dependencies (i.e., from parents down to children).
     insert into users values
-('jstone5', 'Jared', 'Stone', '101 Five Finger Way', '1961-01-06'),
-('sprince6', 'Sarah', 'Prince', '22 Peachtree Street', '1968-06-15'),
-('awilson5', 'Aaron', 'Wilson', '220 Peachtree Street', '1963-11-11'),
-('lrodriguez5', 'Lina', 'Rodriguez', '360 Corkscrew Circle', '1975-04-02'),
-('tmccall5', 'Trey', 'McCall', '360 Corkscrew Circle', '1973-03-19'),
-('eross10', 'Erica', 'Ross', '22 Peachtree Street', '1975-04-02'),
-('hstark16', 'Harmon', 'Stark', '53 Tanker Top Lane', '1971-10-27'),
-('echarles19', 'Ella', 'Charles', '22 Peachtree Street', '1974-05-06'),
-('csoares8', 'Claire', 'Soares', '706 Living Stone Way', '1965-09-03'),
-('agarcia7', 'Alejandro', 'Garcia', '710 Living Water Drive', '1966-10-29'),
-('bsummers4', 'Brie', 'Summers', '5105 Dragon Star Circle', '1976-02-09'),
-('cjordan5', 'Clark', 'Jordan', '77 Infinite Stars Road', '1966-06-05'),
-('fprefontaine6', 'Ford', 'Prefontaine', '10 Hitch Hikers Lane', '1961-01-
-28'),
-('mrobot1', 'Mister', 'Robot', '10 Autonomy Trace', '1988-11-02'),
-('mrobot2', 'Mister', 'Robot', '10 Clone Me Circle', '1988-11-02'),
-('ckann5', 'Carrot', 'Kann', '64 Knights Square Trail', '1972-09-01'),
-('rlopez6', 'Radish', 'Lopez', '8 Queens Route', '1999-09-03');
-insert into employees values
-('awilson5', '111-11-1111', '2020-03-15', 9, 46000),
-('lrodriguez5', '222-22-2222', '2019-04-15', 20, 58000),
-('tmccall5', '333-33-3333', '2018-10-17', 29, 33000),
-('eross10', '444-44-4444', '2020-04-17', 10, 61000),
-('hstark16', '555-55-5555', '2018-07-23', 20, 59000),
-('echarles19', '777-77-7777', '2021-01-02', 3, 27000),
-('csoares8', '888-88-8888', '2019-02-25', 26, 57000),
-('agarcia7', '999-99-9999', '2019-03-17', 24, 41000),
-('bsummers4', '000-00-0000', '2018-12-06', 17, 35000),
-('fprefontaine6', '121-21-2121', '2020-04-19', 5, 20000),
-('mrobot1', '101-01-0101', '2015-05-27', 8, 38000),
-('mrobot2', '010-10-1010', '2015-05-27', 8, 38000),
-('ckann5', '640-81-2357', '2019-08-03', 27, 46000),
-('rlopez6', '123-58-1321', '2017-02-05', 51, 64000);
-insert into restaurant_owners values
-('jstone5'), ('sprince6'), ('cjordan5');
-insert into pilots values
-('awilson5', '314159', 41), ('lrodriguez5', '287182', 67),
-('tmccall5', '181633', 10), ('agarcia7', '610623', 38),
-('bsummers4', '411911', 35), ('fprefontaine6', '657483', 2),
-('echarles19', '236001', 10), ('csoares8', '343563', 7),
-('mrobot1', '101010', 18), ('rlopez6', '235711', 58);
-insert into workers values
-('tmccall5'), ('eross10'), ('hstark16'), ('echarles19'),
-('csoares8'), ('mrobot2'), ('ckann5');
-insert into ingredients values
-('pr_3C6A9R', 'prosciutto', 6), ('ss_2D4E6L', 'saffron', 3),
-('hs_5E7L23M', 'truffles', 3), ('clc_4T9U25X', 'caviar', 5),
-('ap_9T25E36L', 'foie gras', 4), ('bv_4U5L7M', 'balsamic vinegar', 4);
-insert into locations values
-('plaza', 5, 12, 20), ('midtown', 1, 4, 3), ('highpoint', 7, 0, 2),
-('southside', 3, -6, 3), ('mercedes', 1, 1, 2), ('avalon', 2, 16, 5),
-('airport', -2, -9, 4), ('buckhead', 3, 8, 4);
-insert into restaurants values
-('Lure', 5, 20, 'midtown', 'jstone5'), ('Ecco', 3, 0, 'buckhead', 'jstone5'),
-('South City Kitchen', 5, 30, 'midtown', 'jstone5'), ('Tre Vele', 4, 10, 
-'plaza', null),
-('Fogo de Chao', 4, 30, 'buckhead', null), ('Hearth', 4, 0, 'avalon', null),
-('Il Giallo', 4, 10, 'mercedes', 'sprince6'), ('Bishoku', 5, 10, 'plaza', 
-null),
-('Casi Cielo', 5, 30, 'plaza', null), ('Micks', 2, 0, 'southside', null);
-insert into delivery_services values
-('osf', 'On Safari Foods', 'southside', 'eross10'),
+	('jstone5', 'Jared', 'Stone', '101 Five Finger Way', '1961-01-06'),
+	('sprince6', 'Sarah', 'Prince', '22 Peachtree Street', '1968-06-15'),
+	('awilson5', 'Aaron', 'Wilson', '220 Peachtree Street', '1963-11-11'),
+	('lrodriguez5', 'Lina', 'Rodriguez', '360 Corkscrew Circle', '1975-04-02'),
+	('tmccall5', 'Trey', 'McCall', '360 Corkscrew Circle', '1973-03-19'),
+	('eross10', 'Erica', 'Ross', '22 Peachtree Street', '1975-04-02'),
+	('hstark16', 'Harmon', 'Stark', '53 Tanker Top Lane', '1971-10-27'),
+	('echarles19', 'Ella', 'Charles', '22 Peachtree Street', '1974-05-06'),
+	('csoares8', 'Claire', 'Soares', '706 Living Stone Way', '1965-09-03'),
+	('agarcia7', 'Alejandro', 'Garcia', '710 Living Water Drive', '1966-10-29'),
+	('bsummers4', 'Brie', 'Summers', '5105 Dragon Star Circle', '1976-02-09'),
+	('cjordan5', 'Clark', 'Jordan', '77 Infinite Stars Road', '1966-06-05'),
+	('fprefontaine6', 'Ford', 'Prefontaine', '10 Hitch Hikers Lane', '1961-01-28'),
+	('mrobot1', 'Mister', 'Robot', '10 Autonomy Trace', '1988-11-02'),
+	('mrobot2', 'Mister', 'Robot', '10 Clone Me Circle', '1988-11-02'),
+	('ckann5', 'Carrot', 'Kann', '64 Knights Square Trail', '1972-09-01'),
+	('rlopez6', 'Radish', 'Lopez', '8 Queens Route', '1999-09-03');
+
+	insert into employees values
+	('awilson5', '111-11-1111', '2020-03-15', 9, 46000),
+	('lrodriguez5', '222-22-2222', '2019-04-15', 20, 58000),
+	('tmccall5', '333-33-3333', '2018-10-17', 29, 33000),
+	('eross10', '444-44-4444', '2020-04-17', 10, 61000),
+	('hstark16', '555-55-5555', '2018-07-23', 20, 59000),
+	('echarles19', '777-77-7777', '2021-01-02', 3, 27000),
+	('csoares8', '888-88-8888', '2019-02-25', 26, 57000),
+	('agarcia7', '999-99-9999', '2019-03-17', 24, 41000),
+	('bsummers4', '000-00-0000', '2018-12-06', 17, 35000),
+	('fprefontaine6', '121-21-2121', '2020-04-19', 5, 20000),
+	('mrobot1', '101-01-0101', '2015-05-27', 8, 38000),
+	('mrobot2', '010-10-1010', '2015-05-27', 8, 38000),
+	('ckann5', '640-81-2357', '2019-08-03', 27, 46000),
+	('rlopez6', '123-58-1321', '2017-02-05', 51, 64000);
+
+	insert into restaurant_owners values
+	('jstone5'), ('sprince6'), ('cjordan5');
+
+	insert into pilots values
+	('awilson5', '314159', 41), ('lrodriguez5', '287182', 67),
+	('tmccall5', '181633', 10), ('agarcia7', '610623', 38),
+	('bsummers4', '411911', 35), ('fprefontaine6', '657483', 2),
+	('echarles19', '236001', 10), ('csoares8', '343563', 7),
+	('mrobot1', '101010', 18), ('rlopez6', '235711', 58);
+
+	insert into workers values
+	('tmccall5'), ('eross10'), ('hstark16'), ('echarles19'),
+	('csoares8'), ('mrobot2'), ('ckann5');
+
+	insert into ingredients values
+	('pr_3C6A9R', 'prosciutto', 6), ('ss_2D4E6L', 'saffron', 3),
+	('hs_5E7L23M', 'truffles', 3), ('clc_4T9U25X', 'caviar', 5),
+	('ap_9T25E36L', 'foie gras', 4), ('bv_4U5L7M', 'balsamic vinegar', 4);
+
+	insert into locations values
+	('plaza', 5, 12, 20), ('midtown', 1, 4, 3), ('highpoint', 7, 0, 2),
+	('southside', 3, -6, 3), ('mercedes', 1, 1, 2), ('avalon', 2, 16, 5),
+	('airport', -2, -9, 4), ('buckhead', 3, 8, 4);
+
+	insert into restaurants values
+	('Lure', 5, 20, 'midtown', 'jstone5'), ('Ecco', 3, 0, 'buckhead', 'jstone5'),
+	('South City Kitchen', 5, 30, 'midtown', 'jstone5'), ('Tre Vele', 4, 10, 'plaza', null),
+	('Fogo de Chao', 4, 30, 'buckhead', null), ('Hearth', 4, 0, 'avalon', null),
+	('Il Giallo', 4, 10, 'mercedes', 'sprince6'), ('Bishoku', 5, 10, 'plaza', null),
+	('Casi Cielo', 5, 30, 'plaza', null), ('Micks', 2, 0, 'southside', null);
+
+	insert into delivery_services values
+	('osf', 'On Safari Foods', 'southside', 'eross10'),
     ('hf', 'Herban Feast', 'southside', 'hstark16'),
-('rr', 'Ravishing Radish', 'avalon', 'echarles19');
-insert into drones values
-('osf', 1, 100, 9, 0, 'awilson5', null, null, 'airport'),
-('hf', 1, 100, 6, 0, 'fprefontaine6', null, null, 'southside'),
-('hf', 5, 27, 7, 100, 'fprefontaine6', null, null, 'buckhead'),
-('hf', 8, 100, 8, 0, 'bsummers4', null, null, 'southside'),
-('hf', 16, 17, 5, 40, 'fprefontaine6', null, null, 'buckhead'),
-('rr', 3, 100, 5, 50, 'agarcia7', null, null, 'avalon'),
-('rr', 7, 53, 5, 100, 'agarcia7', null, null, 'avalon'),
-('rr', 8, 100, 6, 0, 'agarcia7', null, null, 'highpoint');
-insert into drones values
-('osf', 2, 75, 7, 0, null, 'osf', 1, 'airport'),
-('hf', 11, 25, 10, 0, null, 'hf', 5, 'buckhead'),
-('rr', 11, 90, 6, 0, null, 'rr', 8, 'highpoint');
-insert into payload values
-('osf', 1, 'pr_3C6A9R', 5, 20),
-('osf', 1, 'ss_2D4E6L', 3, 23),
-('osf', 2, 'hs_5E7L23M', 7, 14),
-('hf', 1, 'ss_2D4E6L', 6, 27),
-('hf', 5, 'hs_5E7L23M', 4, 17),
-('hf', 5, 'clc_4T9U25X', 1, 30),
-('hf', 8, 'pr_3C6A9R', 4, 18),
-('hf', 11, 'ss_2D4E6L', 3, 19),
-('rr', 3, 'hs_5E7L23M', 2, 15),
-('rr', 3, 'clc_4T9U25X', 2, 28);
-insert into work_for values
-('eross10', 'osf'), ('hstark16', 'hf'), ('echarles19', 'rr'),
-('tmccall5', 'hf'), ('awilson5', 'osf'), ('fprefontaine6', 'hf'),
-('bsummers4', 'hf'), ('agarcia7', 'rr'), ('mrobot1', 'osf'),
-('mrobot1', 'rr'), ('ckann5', 'osf'), ('rlopez6', 'rr');
+	('rr', 'Ravishing Radish', 'avalon', 'echarles19');
+
+	insert into drones values
+	('osf', 1, 100, 9, 0, 'awilson5', null, null, 'airport'),
+	('hf', 1, 100, 6, 0, 'fprefontaine6', null, null, 'southside'),
+	('hf', 5, 27, 7, 100, 'fprefontaine6', null, null, 'buckhead'),
+	('hf', 8, 100, 8, 0, 'bsummers4', null, null, 'southside'),
+	('hf', 16, 17, 5, 40, 'fprefontaine6', null, null, 'buckhead'),
+	('rr', 3, 100, 5, 50, 'agarcia7', null, null, 'avalon'),
+	('rr', 7, 53, 5, 100, 'agarcia7', null, null, 'avalon'),
+	('rr', 8, 100, 6, 0, 'agarcia7', null, null, 'highpoint');
+
+	insert into drones values
+	('osf', 2, 75, 7, 0, null, 'osf', 1, 'airport'),
+	('hf', 11, 25, 10, 0, null, 'hf', 5, 'buckhead'),
+	('rr', 11, 90, 6, 0, null, 'rr', 8, 'highpoint');
+
+	insert into payload values
+	('osf', 1, 'pr_3C6A9R', 5, 20),
+	('osf', 1, 'ss_2D4E6L', 3, 23),
+	('osf', 2, 'hs_5E7L23M', 7, 14),
+	('hf', 1, 'ss_2D4E6L', 6, 27),
+	('hf', 5, 'hs_5E7L23M', 4, 17),
+	('hf', 5, 'clc_4T9U25X', 1, 30),
+	('hf', 8, 'pr_3C6A9R', 4, 18),
+	('hf', 11, 'ss_2D4E6L', 3, 19),
+	('rr', 3, 'hs_5E7L23M', 2, 15),
+	('rr', 3, 'clc_4T9U25X', 2, 28);
+
+	insert into work_for values
+	('eross10', 'osf'), ('hstark16', 'hf'), ('echarles19', 'rr'),
+	('tmccall5', 'hf'), ('awilson5', 'osf'), ('fprefontaine6', 'hf'),
+	('bsummers4', 'hf'), ('agarcia7', 'rr'), ('mrobot1', 'osf'),
+	('mrobot1', 'rr'), ('ckann5', 'osf'), ('rlopez6', 'rr');
 end //
 delimiter ;
--- 
-----------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------
 -- [2] Create views to evaluate the queries & transactions
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
     
 -- Create one view per original base table and student-created view to be used
 -- to evaluate the transaction results.
@@ -149,139 +158,149 @@ create or replace view practiceQuery18 as select * from delivery_services;
 create or replace view practiceQuery19 as select * from drones;
 create or replace view practiceQuery20 as select * from payload;
 create or replace view practiceQuery21 as select * from work_for;
+
 create or replace view practiceQuery30 as select * from display_owner_view;
 create or replace view practiceQuery31 as select * from display_employee_view;
 create or replace view practiceQuery32 as select * from display_pilot_view;
 create or replace view practiceQuery33 as select * from display_location_view;
 create or replace view practiceQuery34 as select * from display_ingredient_view;
 create or replace view practiceQuery35 as select * from display_service_view;
--- 
-----------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------
 -- [3] Prepare to capture the query results for later analysis
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
+
 -- The magic44_data_capture table is used to store the data created by the student's queries
 -- The table is populated by the magic44_evaluate_queries stored procedure
 -- The data in the table is used to populate the magic44_test_results table for analysis
+
 drop table if exists magic44_data_capture;
 create table magic44_data_capture (
-stepID integer, queryID integer,
-    columnDump0 varchar(1000), columnDump1 varchar(1000), columnDump2 
-varchar(1000), columnDump3 varchar(1000), columnDump4 varchar(1000),
-    columnDump5 varchar(1000), columnDump6 varchar(1000), columnDump7 
-varchar(1000), columnDump8 varchar(1000), columnDump9 varchar(1000),
-columnDump10 varchar(1000), columnDump11 varchar(1000), columnDump12 
-varchar(1000), columnDump13 varchar(1000), columnDump14 varchar(1000)
+	stepID integer, queryID integer,
+    columnDump0 varchar(1000), columnDump1 varchar(1000), columnDump2 varchar(1000), columnDump3 varchar(1000), columnDump4 varchar(1000),
+    columnDump5 varchar(1000), columnDump6 varchar(1000), columnDump7 varchar(1000), columnDump8 varchar(1000), columnDump9 varchar(1000),
+	columnDump10 varchar(1000), columnDump11 varchar(1000), columnDump12 varchar(1000), columnDump13 varchar(1000), columnDump14 varchar(1000)
 );
+
 -- The magic44_column_listing table is used to help prepare the insert statements for the magic44_data_capture
 -- table for the student's queries which may have variable numbers of columns (the table is prepopulated)
+
 drop table if exists magic44_column_listing;
 create table magic44_column_listing (
-columnPosition integer,
+	columnPosition integer,
     simpleColumnName varchar(50),
     nullColumnName varchar(50)
 );
+
 insert into magic44_column_listing (columnPosition, simpleColumnName) values
-(0, 'columnDump0'), (1, 'columnDump1'), (2, 'columnDump2'), (3, 'columnDump3'), (4,
-'columnDump4'),
-(5, 'columnDump5'), (6, 'columnDump6'), (7, 'columnDump7'), (8, 'columnDump8'), (9,
-'columnDump9'),
-(10, 'columnDump10'), (11, 'columnDump11'), (12, 'columnDump12'), (13, 
-'columnDump13'), (14, 'columnDump14');
+(0, 'columnDump0'), (1, 'columnDump1'), (2, 'columnDump2'), (3, 'columnDump3'), (4, 'columnDump4'),
+(5, 'columnDump5'), (6, 'columnDump6'), (7, 'columnDump7'), (8, 'columnDump8'), (9, 'columnDump9'),
+(10, 'columnDump10'), (11, 'columnDump11'), (12, 'columnDump12'), (13, 'columnDump13'), (14, 'columnDump14');
+
 drop function if exists magic44_gen_simple_template;
 delimiter //
 create function magic44_gen_simple_template(numberOfColumns integer)
-returns varchar(1000) reads sql data
+	returns varchar(1000) reads sql data
 begin
-return (select group_concat(simpleColumnName separator ', ') from 
-magic44_column_listing
-where columnPosition < numberOfColumns);
+	return (select group_concat(simpleColumnName separator ', ') from magic44_column_listing
+	where columnPosition < numberOfColumns);
 end //
 delimiter ;
+
 -- Create a variable to effectively act as a program counter for the testing process/steps
 set @stepCounter = 0;
+
 -- The magic44_query_capture function is used to construct the instruction
 -- that can be used to execute and store the results of a query
+
 drop function if exists magic44_query_capture;
 delimiter //
 create function magic44_query_capture(thisQuery integer)
-returns varchar(1000) reads sql data
+	returns varchar(1000) reads sql data
 begin
-set @numberOfColumns = (select count(*) from information_schema.columns
-where table_schema = @thisDatabase
+	set @numberOfColumns = (select count(*) from information_schema.columns
+		where table_schema = @thisDatabase
         and table_name = concat('practiceQuery', thisQuery));
-set @buildQuery = 'insert into magic44_data_capture (stepID, queryID, ';
-    set @buildQuery = concat(@buildQuery, 
-magic44_gen_simple_template(@numberOfColumns));
+
+	set @buildQuery = 'insert into magic44_data_capture (stepID, queryID, ';
+    set @buildQuery = concat(@buildQuery, magic44_gen_simple_template(@numberOfColumns));
     set @buildQuery = concat(@buildQuery, ') select ');
     set @buildQuery = concat(@buildQuery, @stepCounter, ', ');
     set @buildQuery = concat(@buildQuery, thisQuery, ', practiceQuery');
     set @buildQuery = concat(@buildQuery, thisQuery, '.* from practiceQuery');
     set @buildQuery = concat(@buildQuery, thisQuery, ';');
+
 return @buildQuery;
 end //
 delimiter ;
+
 drop function if exists magic44_query_exists;
 delimiter //
 create function magic44_query_exists(thisQuery integer)
-returns integer deterministic
+	returns integer deterministic
 begin
-return (select exists (select * from information_schema.views
-where table_schema = @thisDatabase
+	return (select exists (select * from information_schema.views
+		where table_schema = @thisDatabase
         and table_name like concat('practiceQuery', thisQuery)));
 end //
 delimiter ;
+
 -- Exception checking has been implemented to prevent (as much as reasonably possible) errors
 -- in the queries being evaluated from interrupting the testing process
 -- The magic44_log_query_errors table captures these errors for later review
+
 drop table if exists magic44_log_query_errors;
 create table magic44_log_query_errors (
-step_id integer,
+	step_id integer,
     query_id integer,
     error_code char(5),
     error_message text
 );
+
 drop procedure if exists magic44_query_check_and_run;
 delimiter //
 create procedure magic44_query_check_and_run(in thisQuery integer)
 begin
-declare err_code char(5) default '00000';
+	declare err_code char(5) default '00000';
     declare err_msg text;
-declare continue handler for SQLEXCEPTION
+
+	declare continue handler for SQLEXCEPTION
     begin
-get diagnostics condition 1
-err_code = RETURNED_SQLSTATE, err_msg = MESSAGE_TEXT;
-end;
+		get diagnostics condition 1
+			err_code = RETURNED_SQLSTATE, err_msg = MESSAGE_TEXT;
+	end;
+
     declare continue handler for SQLWARNING
     begin
-get diagnostics condition 1
-err_code = RETURNED_SQLSTATE, err_msg = MESSAGE_TEXT;
-end;
-if magic44_query_exists(thisQuery) then
-set @sql_text = magic44_query_capture(thisQuery);
-prepare statement from @sql_text;
+		get diagnostics condition 1
+			err_code = RETURNED_SQLSTATE, err_msg = MESSAGE_TEXT;
+	end;
+
+	if magic44_query_exists(thisQuery) then
+		set @sql_text = magic44_query_capture(thisQuery);
+		prepare statement from @sql_text;
         execute statement;
         if err_code <> '00000' then
-insert into magic44_log_query_errors values (@stepCounter, 
-thisQuery, err_code, err_msg);
-end if;
+			insert into magic44_log_query_errors values (@stepCounter, thisQuery, err_code, err_msg);
+		end if;
         deallocate prepare statement;
-end if;
+	end if;
 end //
 delimiter ;
--- 
----------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------
 -- [4] Organize the testing results by step and query identifiers
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
+
 drop table if exists magic44_test_case_directory;
 create table if not exists magic44_test_case_directory (
-base_step_id integer,
-number_of_steps integer,
+	base_step_id integer,
+	number_of_steps integer,
     query_label char(20),
     query_name varchar(100),
     scoring_weight integer
 );
+
 insert into magic44_test_case_directory values
 (0, 1, '[V_0]', 'initial_state_check',0),
 (10, 2, '[C_1]', 'add_owner', 2),
@@ -316,30 +335,28 @@ insert into magic44_test_case_directory values
 (360, 6, '[E_1]', 'basic_single_drone', 13),
 (370, 6, '[E_2]', 'basic_single_drone_with_views', 21),
 (380, 14, '[E_3]', 'advanced_swarm_with_new_objects_and_views', 34);
+
 drop table if exists magic44_scores_guide;
 create table if not exists magic44_scores_guide (
     score_tag char(1),
     score_category varchar(100),
     display_order integer
 );
+
 insert into magic44_scores_guide values
 ('C', 'Create Transactions', 1), ('U', 'Use Case Transactions', 2),
 ('R', 'Remove Transactions', 3), ('V', 'Global Views/Queries', 4),
 ('E', 'Event Scenarios/Sequences', 5);
--- 
-----------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------
 -- [5] Test the queries & transactions and store the results
--- 
-----------------------------------------------------------------------------------
--- 
-----------------------------------------------------------------------------------
-/* Check that the initial state of their database matches the required 
-configuration.
-The magic44_reset_database_state() call is deliberately missing in order to 
-evaluate
+-- ----------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------
+/* Check that the initial state of their database matches the required configuration.
+The magic44_reset_database_state() call is deliberately missing in order to evaluate
 the state of the submitted database. */
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
 set @stepCounter = 0;
 call magic44_query_check_and_run(10); -- users
 call magic44_query_check_and_run(11); -- restaurant_owners
@@ -353,118 +370,132 @@ call magic44_query_check_and_run(18); -- delivery_services
 call magic44_query_check_and_run(19); -- drones
 call magic44_query_check_and_run(20); -- payload
 call magic44_query_check_and_run(21); -- work_for
--- 
-----------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------
 /* Check the unit test cases here.  The magic44_reset_database_state() call is used
-for each test to ensure that the database state is set to the initial 
-configuration.
+for each test to ensure that the database state is set to the initial configuration.
 The @stepCounter is set to index the test appropriately, and then the test call is
-performed.  Finally, calls are made to the appropriate database tables to compare 
-the
+performed.  Finally, calls are made to the appropriate database tables to compare the
 actual state changes to the expected state changes per our answer key. */
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
 -- [1] add_owner() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 10;
-call add_owner('lfibonacci5', 'Leonardo', 'Fibonacci', '144 Golden Ratio Spiral', 
-'1170-01-01');
+call add_owner('lfibonacci5', 'Leonardo', 'Fibonacci', '144 Golden Ratio Spiral', '1170-01-01');
 call magic44_query_check_and_run(10); -- users
 call magic44_query_check_and_run(11); -- restaurant_owners
+
 -- [2] add_employee() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 20;
-call add_employee ('lfibonacci5', 'Leonardo', 'Fibonacci', '144 Golden Ratio 
-Spiral', '1170-01-01',
+call add_employee ('lfibonacci5', 'Leonardo', 'Fibonacci', '144 Golden Ratio Spiral', '1170-01-01',
     '112-35-8132', '2113-08-05', 34, 14489);
 call magic44_query_check_and_run(10); -- users
 call magic44_query_check_and_run(12); -- employees
+
 -- [3] add_pilot_role() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 30;
 call add_pilot_role ('mrobot1', '101010', 19);
 call magic44_query_check_and_run(13); -- pilots
+
 -- [4] add_worker_role() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 40;
 call add_worker_role ('mrobot1');
 call magic44_query_check_and_run(14); -- workers
+
 -- [5] add_ingredient() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 50;
 call add_ingredient ('wb_1Y2U3M', 'wagyu beef', 5);
 call magic44_query_check_and_run(15); -- ingredients
+
 -- [6] add_drone() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 60;
 call add_drone ('osf', 4, 100, 10, 1000, 'awilson5');
 call magic44_query_check_and_run(19); -- drones
+
 -- [7] add_restaurant() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 70;
 call add_restaurant ('Topolobampo', 5, 20, 'plaza');
 call magic44_query_check_and_run(17); -- restaurants
+
 -- [8] add_service() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 80;
 call add_service ('wlt', 'Wolt', 'plaza', 'mrobot1');
 call magic44_query_check_and_run(18); -- delivery_services
+
 -- [9] add_location() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 90;
 call add_location ('elysium', 2, 10, 4);
 call magic44_query_check_and_run(16); -- locations
+
 -- [10] start_funding() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 100;
 call start_funding ('cjordan5', 'Tre Vele');
 call magic44_query_check_and_run(17); -- restaurants
+
 -- [11] hire_employee() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 110;
 call hire_employee ('lrodriguez5', 'hf');
 call magic44_query_check_and_run(21); -- work_for
+
 -- [12] fire_employee() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 130;
 call fire_employee ('tmccall5', 'hf');
 call magic44_query_check_and_run(21); -- work_for
+
 -- [13] manage_service() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 140;
 call manage_service ('ckann5', 'osf');
 call magic44_query_check_and_run(18); -- delivery_services
 call magic44_query_check_and_run(14); -- workers
+
 -- [14] takeover_drone() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 150;
 call takeover_drone ('tmccall5', 'hf', 1);
 call magic44_query_check_and_run(19); -- drones
+
 -- [15] join_swarm() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 170;
 call join_swarm ('hf', 8, 1);
 call magic44_query_check_and_run(19); -- drones
+
 -- [16] leave_swarm() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 190;
 call leave_swarm ('hf', 11);
 call magic44_query_check_and_run(19); -- drones
+
 -- [17] load_drone() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 200;
 call load_drone ('hf', 8, 'hs_5E7L23M', 2, 15);
 call magic44_query_check_and_run(20); -- payload
+
 -- [18] refuel_drone() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 220;
 call refuel_drone ('hf', 0, 100);
 call magic44_query_check_and_run(19); -- drones
+
 -- [19] fly_drone() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 230;
 call fly_drone ('osf', 1, 'plaza');
 call magic44_query_check_and_run(19); -- drones
+
 -- [20] purchase_ingredient() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 250;
@@ -472,16 +503,19 @@ call purchase_ingredient ('Ecco', 'hf', 5, 'hs_5E7L23M', 2);
 call magic44_query_check_and_run(17); -- restaurants
 call magic44_query_check_and_run(19); -- drones
 call magic44_query_check_and_run(20); -- payload
+
 -- [21] remove_ingredient() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 270;
 call remove_ingredient ('ap_9T25E36L');
 call magic44_query_check_and_run(15); -- ingredients
+
 -- [22] remove_drone() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 280;
 call remove_drone ('hf', 16);
 call magic44_query_check_and_run(19); -- drones
+
 -- [23] remove_pilot_role() SUCCESS case(s)
 call magic44_reset_database_state();
 set @stepCounter = 290;
@@ -489,30 +523,37 @@ call remove_pilot_role ('lrodriguez5');
 call magic44_query_check_and_run(10); -- users
 call magic44_query_check_and_run(12); -- employees
 call magic44_query_check_and_run(13); -- pilots
+
 -- [24] display_owner_view() INITIAL STATE CHECK
 call magic44_reset_database_state();
 set @stepCounter = 300;
 call magic44_query_check_and_run(30); -- display_owner_view
+
 -- [25] display_employee_view() INITIAL STATE CHECK
 call magic44_reset_database_state();
 set @stepCounter = 310;
 call magic44_query_check_and_run(31); -- display_employee_view
+
 -- [26] display_pilot_view() INITIAL STATE CHECK
 call magic44_reset_database_state();
 set @stepCounter = 320;
 call magic44_query_check_and_run(32); -- display_pilot_view
+
 -- [27] display_location_view() INITIAL STATE CHECK
 call magic44_reset_database_state();
 set @stepCounter = 330;
 call magic44_query_check_and_run(33); -- display_location_view
+
 -- [28] display_ingredient_view() INITIAL STATE CHECK
 call magic44_reset_database_state();
 set @stepCounter = 340;
 call magic44_query_check_and_run(34); -- display_ingredient_view
+
 -- [29] display_service_view() INITIAL STATE CHECK
 call magic44_reset_database_state();
 set @stepCounter = 350;
 call magic44_query_check_and_run(35); -- display_service_view
+
 -- [30] Basic Single Drone: EVENT SCENARIO #1
 call magic44_reset_database_state();
 -- load & refuel single drone
@@ -547,38 +588,39 @@ call magic44_query_check_and_run(20); -- payload
 set @stepCounter = @stepCounter + 1;
 call fly_drone ('hf', 8, 'southside');
 call magic44_query_check_and_run(19); -- drones
--- 
-----------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------
 -- [6] Collect and analyze the testing results for the student's submission
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
+
 -- These tables are used to store the answers and test results.  The answers are generated by executing
 -- the test script against our reference solution.  The test results are collected by running the test
 -- script against your submission in order to compare the results.
+
 -- The results from magic44_data_capture are transferred into the magic44_test_results table
 drop table if exists magic44_test_results;
 create table magic44_test_results (
-step_id integer not null,
+	step_id integer not null,
     query_id integer,
-row_hash varchar(2000) not null
+	row_hash varchar(2000) not null
 );
+
 insert into magic44_test_results
-select stepID, queryID, concat_ws('#', ifnull(columndump0, ''), ifnull(columndump1,
-''), ifnull(columndump2, ''), ifnull(columndump3, ''),
-ifnull(columndump4, ''), ifnull(columndump5, ''), ifnull(columndump6, ''), 
-ifnull(columndump7, ''), ifnull(columndump8, ''), ifnull(columndump9, ''),
-ifnull(columndump10, ''), ifnull(columndump11, ''), ifnull(columndump12, ''), 
-ifnull(columndump13, ''), ifnull(columndump14, ''))
+select stepID, queryID, concat_ws('#', ifnull(columndump0, ''), ifnull(columndump1, ''), ifnull(columndump2, ''), ifnull(columndump3, ''),
+ifnull(columndump4, ''), ifnull(columndump5, ''), ifnull(columndump6, ''), ifnull(columndump7, ''), ifnull(columndump8, ''), ifnull(columndump9, ''),
+ifnull(columndump10, ''), ifnull(columndump11, ''), ifnull(columndump12, ''), ifnull(columndump13, ''), ifnull(columndump14, ''))
 from magic44_data_capture;
+
 -- the answers generated from the reference solution are loaded below
 drop table if exists magic44_expected_results;
 create table magic44_expected_results (
-step_id integer not null,
+	step_id integer not null,
     query_id integer,
-row_hash varchar(2000) not null,
+	row_hash varchar(2000) not null,
     index (step_id),
     index (query_id)
 );
+
 insert into magic44_expected_results values
 (0,10,'agarcia7#alejandro#garcia#710livingwaterdrive#1966-10-29##########'),
 (0,10,'awilson5#aaron#wilson#220peachtreestreet#1963-11-11##########'),
@@ -1167,104 +1209,116 @@ insert into magic44_expected_results values
 (365,19,'rr#7#53#5#100#agarcia7###avalon######'),
 (365,19,'rr#8#100#6#0#agarcia7###highpoint######'),
 (365,19,'rr#11#90#6#0##rr#8#highpoint######');
--- 
-----------------------------------------------------------------------------------
+
+-- ----------------------------------------------------------------------------------
 -- [7] Compare & evaluate the testing results
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
+
 -- Delete the unneeded rows from the answers table to simplify later analysis
 -- delete from magic44_expected_results where not magic44_query_exists(query_id);
+
 -- Modify the row hash results for the results table to eliminate spaces and convert all characters to lowercase
 update magic44_test_results set row_hash = lower(replace(row_hash, ' ', ''));
+
 -- The magic44_count_differences view displays the differences between the number of rows contained in the answers
 -- and the test results.  The value null in the answer_total and result_total columns represents zero (0) rows for
 -- that query result.
+
 drop view if exists magic44_count_answers;
 create view magic44_count_answers as
 select step_id, query_id, count(*) as answer_total
 from magic44_expected_results group by step_id, query_id;
+
 drop view if exists magic44_count_test_results;
 create view magic44_count_test_results as
 select step_id, query_id, count(*) as result_total
 from magic44_test_results group by step_id, query_id;
+
 drop view if exists magic44_count_differences;
 create view magic44_count_differences as
-select magic44_count_answers.query_id, magic44_count_answers.step_id, answer_total,
-result_total
+select magic44_count_answers.query_id, magic44_count_answers.step_id, answer_total, result_total
 from magic44_count_answers left outer join magic44_count_test_results
-on magic44_count_answers.step_id = magic44_count_test_results.step_id
-and magic44_count_answers.query_id = magic44_count_test_results.query_id
+	on magic44_count_answers.step_id = magic44_count_test_results.step_id
+	and magic44_count_answers.query_id = magic44_count_test_results.query_id
 where answer_total <> result_total or result_total is null
 union
-select magic44_count_test_results.query_id, magic44_count_test_results.step_id, 
-answer_total, result_total
+select magic44_count_test_results.query_id, magic44_count_test_results.step_id, answer_total, result_total
 from magic44_count_test_results left outer join magic44_count_answers
-on magic44_count_test_results.step_id = magic44_count_answers.step_id
-and magic44_count_test_results.query_id = magic44_count_answers.query_id
+	on magic44_count_test_results.step_id = magic44_count_answers.step_id
+	and magic44_count_test_results.query_id = magic44_count_answers.query_id
 where result_total <> answer_total or answer_total is null
 order by query_id, step_id;
+
 -- The magic44_content_differences view displays the differences between the answers and test results
 -- in terms of the row attributes and values.  the error_category column contains missing for rows that
 -- are not included in the test results but should be, while extra represents the rows that should not
 -- be included in the test results.  the row_hash column contains the values of the row in a single
 -- string with the attribute values separated by a selected delimiter (i.e., the pound sign/#).
+
 drop view if exists magic44_content_differences;
 create view magic44_content_differences as
 select query_id, step_id, 'missing' as category, row_hash
 from magic44_expected_results where row(step_id, query_id, row_hash) not in
-(select step_id, query_id, row_hash from magic44_test_results)
+	(select step_id, query_id, row_hash from magic44_test_results)
 union
 select query_id, step_id, 'extra' as category, row_hash
 from magic44_test_results where row(step_id, query_id, row_hash) not in
-(select step_id, query_id, row_hash from magic44_expected_results)
+	(select step_id, query_id, row_hash from magic44_expected_results)
 order by query_id, step_id, row_hash;
+
 drop view if exists magic44_result_set_size_errors;
 create view magic44_result_set_size_errors as
-select step_id, query_id, 'result_set_size' as err_category from 
-magic44_count_differences
+select step_id, query_id, 'result_set_size' as err_category from magic44_count_differences
 group by step_id, query_id;
+
 drop view if exists magic44_attribute_value_errors;
 create view magic44_attribute_value_errors as
-select step_id, query_id, 'attribute_values' as err_category from 
-magic44_content_differences
-where row(step_id, query_id) not in (select step_id, query_id from 
-magic44_count_differences)
+select step_id, query_id, 'attribute_values' as err_category from magic44_content_differences
+where row(step_id, query_id) not in (select step_id, query_id from magic44_count_differences)
 group by step_id, query_id;
+
 drop view if exists magic44_errors_assembled;
 create view magic44_errors_assembled as
 select * from magic44_result_set_size_errors
 union
 select * from magic44_attribute_value_errors;
+
 drop table if exists magic44_row_count_errors;
 create table magic44_row_count_errors
 select * from magic44_count_differences
 order by query_id, step_id;
+
 drop table if exists magic44_column_errors;
 create table magic44_column_errors
 select * from magic44_content_differences
 order by query_id, step_id, row_hash;
+
 drop view if exists magic44_fast_expected_results;
 create view magic44_fast_expected_results as
 select step_id, query_id, query_label, query_name
 from magic44_expected_results, magic44_test_case_directory
 where base_step_id <= step_id and step_id <= (base_step_id + number_of_steps - 1)
 group by step_id, query_id, query_label, query_name;
+
 drop view if exists magic44_fast_row_based_errors;
 create view magic44_fast_row_based_errors as
 select step_id, query_id, query_label, query_name
 from magic44_row_count_errors, magic44_test_case_directory
 where base_step_id <= step_id and step_id <= (base_step_id + number_of_steps - 1)
 group by step_id, query_id, query_label, query_name;
+
 drop view if exists magic44_fast_column_based_errors;
 create view magic44_fast_column_based_errors as
 select step_id, query_id, query_label, query_name
 from magic44_column_errors, magic44_test_case_directory
 where base_step_id <= step_id and step_id <= (base_step_id + number_of_steps - 1)
 group by step_id, query_id, query_label, query_name;
+
 drop view if exists magic44_fast_total_test_cases;
 create view magic44_fast_total_test_cases as
 select query_label, query_name, count(*) as total_cases
 from magic44_fast_expected_results group by query_label, query_name;
+
 drop view if exists magic44_fast_correct_test_cases;
 create view magic44_fast_correct_test_cases as
 select query_label, query_name, count(*) as correct_cases
@@ -1272,43 +1326,42 @@ from magic44_fast_expected_results where row(step_id, query_id) not in
 (select step_id, query_id from magic44_fast_row_based_errors
 union select step_id, query_id from magic44_fast_column_based_errors)
 group by query_label, query_name;
+
 drop table if exists magic44_autograding_low_level;
 create table magic44_autograding_low_level
 select magic44_fast_total_test_cases.*, ifnull(correct_cases, 0) as passed_cases
 from magic44_fast_total_test_cases left outer join magic44_fast_correct_test_cases
-on magic44_fast_total_test_cases.query_label = 
-magic44_fast_correct_test_cases.query_label
-and magic44_fast_total_test_cases.query_name = 
-magic44_fast_correct_test_cases.query_name;
+on magic44_fast_total_test_cases.query_label = magic44_fast_correct_test_cases.query_label
+and magic44_fast_total_test_cases.query_name = magic44_fast_correct_test_cases.query_name;
+
 drop table if exists magic44_autograding_score_summary;
 create table magic44_autograding_score_summary
 select query_label, query_name,
-round(scoring_weight * passed_cases / total_cases, 2) as final_score, 
-scoring_weight
+	round(scoring_weight * passed_cases / total_cases, 2) as final_score, scoring_weight
 from magic44_autograding_low_level natural join magic44_test_case_directory
 where passed_cases < total_cases
 union
-select null, 'REMAINING CORRECT CASES', sum(round(scoring_weight * passed_cases / 
-total_cases, 2)), null
+select null, 'REMAINING CORRECT CASES', sum(round(scoring_weight * passed_cases / total_cases, 2)), null
 from magic44_autograding_low_level natural join magic44_test_case_directory
 where passed_cases = total_cases
 union
-select null, 'TOTAL SCORE', sum(round(scoring_weight * passed_cases / total_cases, 
-2)), null
+select null, 'TOTAL SCORE', sum(round(scoring_weight * passed_cases / total_cases, 2)), null
 from magic44_autograding_low_level natural join magic44_test_case_directory;
+
 drop table if exists magic44_autograding_high_level;
 create table magic44_autograding_high_level
 select score_tag, score_category, sum(total_cases) as total_possible,
-sum(passed_cases) as total_passed
+	sum(passed_cases) as total_passed
 from magic44_scores_guide natural join
-(select *, mid(query_label, 2, 1) as score_tag from magic44_autograding_low_level) 
-as temp
+(select *, mid(query_label, 2, 1) as score_tag from magic44_autograding_low_level) as temp
 group by score_tag, score_category; -- order by display_order;
+
 -- Evaluate potential query errors against the original state and the modified state
 drop view if exists magic44_result_errs_original;
 create view magic44_result_errs_original as
 select distinct 'row_count_errors_initial_state' as title, query_id
 from magic44_row_count_errors where step_id = 0;
+
 drop view if exists magic44_result_errs_modified;
 create view magic44_result_errs_modified as
 select distinct 'row_count_errors_test_cases' as title, query_id
@@ -1316,6 +1369,7 @@ from magic44_row_count_errors
 where query_id not in (select query_id from magic44_result_errs_original)
 union
 select * from magic44_result_errs_original;
+
 drop view if exists magic44_attribute_errs_original;
 create view magic44_attribute_errs_original as
 select distinct 'column_errors_initial_state' as title, query_id
@@ -1323,6 +1377,7 @@ from magic44_column_errors where step_id = 0
 and query_id not in (select query_id from magic44_result_errs_modified)
 union
 select * from magic44_result_errs_modified;
+
 drop view if exists magic44_attribute_errs_modified;
 create view magic44_attribute_errs_modified as
 select distinct 'column_errors_test_cases' as title, query_id
@@ -1330,6 +1385,7 @@ from magic44_column_errors
 where query_id not in (select query_id from magic44_attribute_errs_original)
 union
 select * from magic44_attribute_errs_original;
+
 drop view if exists magic44_correct_remainders;
 create view magic44_correct_remainders as
 select distinct 'fully_correct' as title, query_id
@@ -1337,59 +1393,58 @@ from magic44_test_results
 where query_id not in (select query_id from magic44_attribute_errs_modified)
 union
 select * from magic44_attribute_errs_modified;
+
 drop view if exists magic44_grading_rollups;
 create view magic44_grading_rollups as
-select title, count(*) as number_affected, group_concat(query_id order by query_id 
-asc) as queries_affected
+select title, count(*) as number_affected, group_concat(query_id order by query_id asc) as queries_affected
 from magic44_correct_remainders
 group by title;
+
 drop table if exists magic44_autograding_directory;
 create table magic44_autograding_directory (query_status_category varchar(1000));
 insert into magic44_autograding_directory values ('fully_correct'),
 ('column_errors_initial_state'), ('row_count_errors_initial_state'),
 ('column_errors_test_cases'), ('row_count_errors_test_cases');
+
 drop table if exists magic44_autograding_query_level;
 create table magic44_autograding_query_level
 select query_status_category, number_affected, queries_affected
 from magic44_autograding_directory left outer join magic44_grading_rollups
 on query_status_category = title;
 
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
 -- Validate/verify that the test case results are correct
 -- The test case results are compared to the initial database state contents
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
+
 drop procedure if exists magic44_check_test_case;
 delimiter //
 create procedure magic44_check_test_case(in ip_test_case_number integer)
 begin
-select * from (select query_id, 'added' as category, row_hash
-from magic44_test_results where step_id = ip_test_case_number and 
-row(query_id, row_hash) not in
-(select query_id, row_hash from magic44_expected_results where step_id = 0)
-union
-select temp.query_id, 'removed' as category, temp.row_hash
-from (select query_id, row_hash from magic44_expected_results where step_id = 0) as temp
-where row(temp.query_id, temp.row_hash) not in
-(select query_id, row_hash from magic44_test_results where step_id = 
-ip_test_case_number)
-and temp.query_id in
-(select query_id from magic44_test_results where step_id = ip_test_case_number)) as unified
-order by query_id, row_hash;
+	select * from (select query_id, 'added' as category, row_hash
+	from magic44_test_results where step_id = ip_test_case_number and row(query_id, row_hash) not in
+		(select query_id, row_hash from magic44_expected_results where step_id = 0)
+	union
+	select temp.query_id, 'removed' as category, temp.row_hash
+	from (select query_id, row_hash from magic44_expected_results where step_id = 0) as temp
+	where row(temp.query_id, temp.row_hash) not in
+		(select query_id, row_hash from magic44_test_results where step_id = ip_test_case_number)
+	and temp.query_id in
+		(select query_id from magic44_test_results where step_id = ip_test_case_number)) as unified
+	order by query_id, row_hash;
 end //
+delimiter ;
 
- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
 -- [8] Generate views to help interpret the test results more easily
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
 drop table if exists magic44_table_name_lookup;
 create table magic44_table_name_lookup (
-query_id integer,
-table_or_view_name varchar(2000),
+	query_id integer,
+	table_or_view_name varchar(2000),
     primary key (query_id)
 );
+
 insert into magic44_table_name_lookup values
 (10, 'users'), (11, 'restaurant_owners'), (12, 'employees'), (13, 'pilots'),
 (14, 'workers'), (15, 'ingredients'), (16, 'locations'), (17, 'restaurants'),
@@ -1397,22 +1452,21 @@ insert into magic44_table_name_lookup values
 (30, 'display_owner_view'), (31, 'display_employee_view'),
 (32, 'display_pilot_view'), (33, 'display_location_view'),
 (34, 'display_ingredient_view'), (35, 'display_service_view');
+
 create or replace view magic44_column_errors_traceable as
-select query_label as test_category, query_name as test_name, step_id as 
-test_step_counter,
-table_or_view_name, category as error_category, row_hash
+select query_label as test_category, query_name as test_name, step_id as test_step_counter,
+	table_or_view_name, category as error_category, row_hash
 from (magic44_column_errors join magic44_test_case_directory
 on (step_id between base_step_id and base_step_id + number_of_steps - 1))
 natural join magic44_table_name_lookup
 order by test_category, test_step_counter, row_hash;
 
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
 -- [9] Remove unneeded tables, views, stored procedures and functions
--- 
-----------------------------------------------------------------------------------
+-- ----------------------------------------------------------------------------------
 -- Keep only those structures needed to provide student feedback
 drop table if exists magic44_autograding_directory;
+
 drop view if exists magic44_grading_rollups;
 drop view if exists magic44_correct_remainders;
 drop view if exists magic44_attribute_errs_modified;
@@ -1426,16 +1480,20 @@ drop view if exists magic44_content_differences;
 drop view if exists magic44_count_differences;
 drop view if exists magic44_count_test_results;
 drop view if exists magic44_count_answers;
+
 drop procedure if exists magic44_query_check_and_run;
+
 drop function if exists magic44_query_exists;
 drop function if exists magic44_query_capture;
 drop function if exists magic44_gen_simple_template;
+
 drop table if exists magic44_column_listing;
 
 -- The magic44_reset_database_state() and magic44_check_test_case procedures can be
 -- dropped if desired, but they might be helpful for troubleshooting
 -- drop procedure if exists magic44_reset_database_state;
 -- drop procedure if exists magic44_check_test_case;
+
 drop view if exists practiceQuery10;
 drop view if exists practiceQuery11;
 drop view if exists practiceQuery12;
@@ -1448,15 +1506,18 @@ drop view if exists practiceQuery18;
 drop view if exists practiceQuery19;
 drop view if exists practiceQuery20;
 drop view if exists practiceQuery21;
+
 drop view if exists practiceQuery30;
 drop view if exists practiceQuery31;
 drop view if exists practiceQuery32;
 drop view if exists practiceQuery33;
 drop view if exists practiceQuery34;
 drop view if exists practiceQuery35;
+
 drop view if exists magic44_fast_correct_test_cases;
 drop view if exists magic44_fast_total_test_cases;
 drop view if exists magic44_fast_column_based_errors;
 drop view if exists magic44_fast_row_based_errors;
 drop view if exists magic44_fast_expected_results;
+
 drop table if exists magic44_scores_guide;
