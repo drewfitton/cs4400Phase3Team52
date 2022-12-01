@@ -651,9 +651,9 @@ create or replace view display_owner_view as
 select username as Information,
 COUNT(DISTINCT long_name) as Restaurants,
 COUNT(DISTINCT location) as Locations,
-MIN(rating) as Low,
-MAX(rating) as High,
-SUM(spent) as Debt
+IFNULL(MIN(rating), 0) as Low,
+IFNULL(MAX(rating), 0) as High,
+IFNULL(SUM(spent), 0) as Debt
 from restaurant_owners
 left join restaurants on restaurant_owners.username = restaurants.funded_by
 group by username;
@@ -711,7 +711,7 @@ select services.Identifier, services."Service Name", services.Location, services
 from delivery_services S
 join drones D on S.id = D.id
 group by S.id) as services join
-(select P.id as Service, count(distinct P.barcode) as Ingredients, sum(price) as "Total Cost", sum(weight) as "Total Weight"
+(select P.id as Service, count(distinct P.barcode) as Ingredients, sum(price * quantity) as "Total Cost", sum(weight * quantity) as "Total Weight"
 from payload P inner join ingredients I on P.barcode = I.barcode
 group by P.id) as payloads 
 on services.Identifier = payloads.Service;
