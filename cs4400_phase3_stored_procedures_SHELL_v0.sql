@@ -666,7 +666,11 @@ experience level, along with the license identifer and piloting experience (if
 applicable), and a 'yes' or 'no' depending on the manager status of the employee. */
 -- -----------------------------------------------------------------------------
 create or replace view display_employee_view as
-select * from employees;
+select distinct pe.username, taxID, salary, hired, experience, LicenseID, "Pilot Experience", Manager from
+(select e.username, e.taxID, e. salary, e.hired, e.experience, if(p.licenseID is not null, p.licenseID, 'n/a') as LicenseID, if(p.experience is not null, p.experience, 'n/a') as "Pilot Experience"
+from employees as e left join pilots as p on e.username = p.username) as pe left join
+(select e.username, if(d.manager is not null, 'yes', 'no') as Manager from employees as e left join delivery_services as d on e.username = d.manager) as em
+on pe.username = em.username order by pe.username;
 
 -- [26] display_pilot_view()
 -- -----------------------------------------------------------------------------
