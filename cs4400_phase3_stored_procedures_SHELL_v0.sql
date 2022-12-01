@@ -706,4 +706,12 @@ of unique ingredients along with the total cost and weight of those ingredients 
 carried by the drones. */
 -- -----------------------------------------------------------------------------
 create or replace view display_service_view as
-select * from delivery_services;
+select services.Identifier, services."Service Name", services.Location, services.Manager, services.Drones, payloads.Ingredients, payloads."Total Cost", payloads."Total Weight" from 
+(select S.id as Identifier, S.long_name as "Service Name", S.home_base as Location, S.manager as Manager, count(distinct D.tag) as Drones
+from delivery_services S
+join drones D on S.id = D.id
+group by S.id) as services join
+(select P.id as Service, count(distinct P.barcode) as Ingredients, sum(price) as "Total Cost", sum(weight) as "Total Weight"
+from payload P inner join ingredients I on P.barcode = I.barcode
+group by P.id) as payloads 
+on services.Identifier = payloads.Service;
