@@ -533,7 +533,7 @@ sp_main: begin
 	
     set @homeBase = (select home_base from delivery_services where id = ip_id);
     set @curr = (select hover from drones where (ip_id = id and ip_tag = tag));
-    set @fuelReqTotal = fuel_required(ip_destination, home_base) + fuel_required(curr, ip_destination);
+    set @fuelReqTotal = fuel_required(ip_destination, @home_base) + fuel_required(@curr, ip_destination);
     
 end //
 delimiter ;
