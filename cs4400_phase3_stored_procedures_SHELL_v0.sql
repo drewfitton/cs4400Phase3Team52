@@ -648,7 +648,15 @@ monies spent purchasing ingredients by all of those restaurants. And if an owner
 doesn't fund any restaurants then display zeros for the highs, lows and debt. */
 -- -----------------------------------------------------------------------------
 create or replace view display_owner_view as
-select * from restaurant_owners;
+select username as Information,
+COUNT(DISTINCT long_name) as Restaurants,
+COUNT(DISTINCT location) as Locations,
+MIN(rating) as Low,
+MAX(rating) as High,
+SUM(spent) as Debt
+from restaurant_owners
+left join restaurants on restaurant_owners.username = restaurants.funded_by
+group by username;
 
 -- [25] display_employee_view()
 -- -----------------------------------------------------------------------------
