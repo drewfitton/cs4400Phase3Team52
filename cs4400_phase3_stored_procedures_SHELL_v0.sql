@@ -648,15 +648,16 @@ monies spent purchasing ingredients by all of those restaurants. And if an owner
 doesn't fund any restaurants then display zeros for the highs, lows and debt. */
 -- -----------------------------------------------------------------------------
 create or replace view display_owner_view as
-select username as Information,
-COUNT(DISTINCT long_name) as Restaurants,
-COUNT(DISTINCT location) as Locations,
-IFNULL(MIN(rating), 0) as Low,
-IFNULL(MAX(rating), 0) as High,
-IFNULL(SUM(spent), 0) as Debt
-from restaurant_owners
-left join restaurants on restaurant_owners.username = restaurants.funded_by
-group by username;
+select owner_info.username, first_name, last_name, address, Restaurants, Locations, High, Low, Debt from
+(select users.username, first_name, last_name, address 
+from users join restaurant_owners
+on users.username = restaurant_owners.username) as owner_info 
+left join
+(select restaurant_owners.username, count(distinct long_name) as Restaurants, count(distinct location) as Locations, ifnull(max(rating), 0) as High, ifnull(min(rating), 0) as Low, ifnull(sum(spent), 0) as Debt
+from restaurant_owners left join restaurants
+on restaurant_owners.username = restaurants.funded_by
+group by username) as owner_data
+on owner_info.username = owner_data.username;
 
 -- [25] display_employee_view()
 -- -----------------------------------------------------------------------------
