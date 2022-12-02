@@ -689,7 +689,19 @@ For each location, it includes the label, x- and y- coordinates, along with the
 number of restaurants, delivery services and drones at that location. */
 -- -----------------------------------------------------------------------------
 create or replace view display_location_view as
-select * from locations;
+select 
+label, x_coord, y_coord,
+ifnull(count(distinct restaurants.long_name), 0) as Restaurants,
+ifnull(count(distinct delivery_services.long_name), 0) as Services,
+ifnull(count(distinct tag), 0) as Drones
+from locations
+left join restaurants
+on locations.label = restaurants.location
+left join delivery_services
+on locations.label = delivery_services.home_base
+left join drones
+on locations.label = drones.hover
+group by locations.label;
 
 -- [28] display_ingredient_view()
 -- -----------------------------------------------------------------------------
