@@ -712,7 +712,14 @@ that can be purchased and the lowest and highest prices at which the ingredient 
 sold at that location. */
 -- -----------------------------------------------------------------------------
 create or replace view display_ingredient_view as
-select * from ingredients;
+select iname as Ingredient, hover as Location, sum(quantity) as Available, min(price) as Low, max(price) as High from ingredients
+left join payload 
+on ingredients.barcode = payload.barcode
+left join drones
+on payload.id = drones.id and payload.tag = drones.tag
+group by iname, hover
+having hover is not null
+order by iname;
 
 -- [29] display_service_view()
 -- -----------------------------------------------------------------------------
