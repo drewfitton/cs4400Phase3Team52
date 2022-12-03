@@ -731,11 +731,15 @@ experience level, along with the license identifer and piloting experience (if
 applicable), and a 'yes' or 'no' depending on the manager status of the employee. */
 -- -----------------------------------------------------------------------------
 create or replace view display_employee_view as
-select distinct pe.username, taxID, salary, hired, experience, LicenseID, "Pilot Experience", Manager from
-(select e.username, e.taxID, e. salary, e.hired, e.experience, if(p.licenseID is not null, p.licenseID, 'n/a') as LicenseID, if(p.experience is not null, p.experience, 'n/a') as "Pilot Experience"
-from employees as e left join pilots as p on e.username = p.username) as pe left join
-(select e.username, if(d.manager is not null, 'yes', 'no') as Manager from employees as e left join delivery_services as d on e.username = d.manager) as em
-on pe.username = em.username order by pe.username;
+select e.username, e.taxID, e.salary, e.hired, e.experience as 'Employee Experience',
+ifnull(p.licenseID, 'n/a') as 'Pilot License',
+ifnull(p.experience, 'n/a') as 'Pilot Experience',
+if(d.manager is not null, 'yes', 'no') as Manager 
+from employees as e
+left join pilots as p
+on e.username = p.username
+left join delivery_services d
+on e.username = d.manager;
 
 -- [26] display_pilot_view()
 -- -----------------------------------------------------------------------------
@@ -744,7 +748,17 @@ For each pilot, it includes the username, licenseID and piloting experience, alo
 with the number of drones that they are controlling. */
 -- -----------------------------------------------------------------------------
 create or replace view display_pilot_view as
-select * from pilots;
+with recursive swarm (username, licenseID, experience, id, tag, hover) as (
+select pilots.username, pilots.licenseID, pilots.experience, drones.id, drones.tag, drones.hover
+from pilots, drones
+where pilots.username = drones.flown_by
+union all
+select swarm.username, swarm.licenseID, swarm.experience, d.id, d.tag, d.hover
+from drones as d
+inner join swarm on
+swarm_id = swarm.id and swarm_tag = swarm.tag
+) select pilots.username, pilots.licenseID, pilots.experience, ifnull(count(distinct swarm.tag), 0) as drones, ifnull(count(distinct swarm.hover), 0) as locations
+from pilots left join swarm on pilots.username = swarm.username group by pilots.username;
 
 -- [27] display_location_view()
 -- -----------------------------------------------------------------------------
