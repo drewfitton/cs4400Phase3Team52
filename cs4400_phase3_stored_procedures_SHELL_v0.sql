@@ -321,15 +321,17 @@ sp_main: begin
     -- ensure that the employee isn't working for any other services
     -- add the worker role if necessary
     
-    if (ip_username not in (select username from work_for where id != ip_id)
-    and ip_username in (select username from work_for where id = ip_id)
-    and ip_username not in (select flown_by from drones)) then
-		if (ip_username not in (select username from workers)) then
-			insert into workers (username) value (ip_username);
-		end if;
+    if ip_username in (select username from work_for where id != ip_id)
+		then leave sp_main; end if;
+    if ip_username not in (select username from work_for where id = ip_id)
+		then leave sp_main; end if;
+    if ip_username in (select flown_by from drones)
+		then leave sp_main; end if;
+	if (ip_username not in (select username from workers)) then
+		insert into workers values (ip_username);
+	end if;
         update delivery_services set manager = ip_username where id = ip_id;
-    end if;
-    
+
 end //
 delimiter ;
 
@@ -414,17 +416,17 @@ create procedure leave_swarm (in ip_id varchar(40), in ip_swarm_tag integer)
 sp_main: begin
 	-- ensure that the selected drone is owned by the service and flying in a swarm
     
+    if ip_swarm_tag in (select tag from drones where (id = ip_id and flown_by is null))then
     
-    set @leadID = (select swarm_id from drones where (id = ip_id and tag = ip_swarm_tag));
-    set @leadTag = (select swarm_tag from drones where (id = ip_id and tag = ip_swarm_tag));
-    set @pilot = (select flown_by from drones where (id = @leadID and tag = @swarmLeaderTag));
+		set @leadID = (select swarm_id from drones where (id = ip_id and tag = ip_swarm_tag));
+		set @leadTag = (select swarm_tag from drones where (id = ip_id and tag = ip_swarm_tag));
+		set @pilot = (select flown_by from drones where (id = @leadID and tag = @leadTag));
     
-    if ip_id in (select id from drones where tag = ip_swarm_tag and flown_by is null) then
 		update drones 
         set flown_by = @pilot, swarm_id = NULL, swarm_tag = NULL 
-        where (id = ip_id and tag = ip_swarm_tag);
-    end if;
-
+        where id = ip_id and tag = ip_swarm_tag;
+	end if;
+        
 end //
 delimiter ;
 
@@ -485,8 +487,9 @@ sp_main: begin
     if (ip_tag in (select tag from drones)
     and ip_id in (select id from delivery_services)
     and (select hover from drones where (ip_id = id and ip_tag = tag)) = (select home_base from delivery_services where ip_id = id)) then
+		set @newfuel = ((select fuel from drones where (ip_id = id and ip_tag = tag)) + ip_more_fuel);
 		update drones 
-        set fuel = (select fuel from drones where (ip_id = id and ip_tag = tag)) + ip_more_fuel
+        set fuel = @newfuel
         where (ip_id = id and ip_tag = tag);
 	end if;
     
@@ -526,14 +529,61 @@ sp_main: begin
     -- ensure that the drone/swarm has enough fuel to reach the destination and (then) home base
     -- ensure that the drone/swarm has enough space at the destination for the flight
     
-    if (ip_tag not in (select tag from drones where ip_id = id)
-    or ip_destination not in (select label from locations)
-    or ip_destination in (select hover from drones where (ip_id = id and ip_tag = tag)))
+    if ip_tag not in (select tag from drones where ip_id = id)
+		then leave sp_main; end if;
+    if ip_destination not in (select label from locations)
+		then leave sp_main; end if;
+    if ip_destination in (select hover from drones where (ip_id = id and ip_tag = tag))
 		then leave sp_main; end if;
 	
     set @homeBase = (select home_base from delivery_services where id = ip_id);
     set @curr = (select hover from drones where (ip_id = id and ip_tag = tag));
+<<<<<<< Updated upstream
     set @fuelReqTotal = fuel_required(ip_destination, home_base) + fuel_required(curr, ip_destination);
+=======
+    set @fuelReqTotal = fuel_required(ip_destination, @homeBase) + fuel_required(@curr, ip_destination);
+	
+    if (with recursive swarm (id, tag, fuel)
+		as (select id, tag, fuel
+        from drones
+        where id = ip_id and tag = ip_tag
+        union all
+        select dr.id, dr.tag, dr.fuel
+        from drones as dr
+        inner join swarm on 
+			swarm_id = swarm.id and swarm_tag = swarm.tag
+		)
+		select count(*) from swarm where fuel < @fuelReqTotal) > 0
+			then leave sp_main; end if;
+	
+    set @atDest = (select count(*) from drones where hover in (select ip_destination from drones));
+	if ((with recursive swarm (id, tag, fuel)
+		as (select id, tag, fuel
+		from drones
+		where id = ip_id and tag = ip_tag
+		union all
+		select dr.id, dr.tag, dr.fuel
+		from drones as dr
+		inner join swarm on 
+			swarm_id = swarm.id and swarm_tag = swarm.tag
+	) select count(*) from swarm) + @atDest)
+	> (select space from locations where label = ip_destination)
+        then leave sp_main; end if;
+        
+	with recursive swarm (id, tag)
+		as (select id, tag
+		from drones
+		where id = ip_id and tag = ip_tag
+		union all
+		select dr.id, dr.tag
+		from drones as dr
+		inner join swarm on 
+			swarm_id = swarm.id and swarm_tag = swarm.tag
+	)
+    update drones
+    set fuel = fuel - fuel_required(drones.hover, ip_destination), hover = ip_destination
+    where (id, tag) in (select id, tag from swarm);
+>>>>>>> Stashed changes
     
 end //
 delimiter ;
@@ -558,6 +608,24 @@ sp_main: begin
 	-- update the drone's payload
     -- update the monies spent and gained for the drone and restaurant
     -- ensure all quantities in the payload table are greater than zero
+    
+    if (ip_long_name not in (select long_name from restaurants))
+		then leave sp_main; end if;
+	if (ip_tag not in (select tag from drones where ip_id = id))
+		then leave sp_main; end if;
+	if ((select hover from drones where ip_id = id and ip_tag = tag) != (select location from restaurants where long_name = ip_long_name))
+		then leave sp_main; end if;
+	if ((select quantity from payload where ip_id = id and ip_tag = tag and ip_barcode = barcode) <= ip_quantity)
+		 then leave sp_main; end if;
+	
+    update payload set quantity = quantity - ip_quantity where ip_id = id and ip_tag = tag and ip_barcode = barcode;
+    
+    set @itemVal = ip_quantity * (select price from payload where (ip_id = id and ip_tag = tag and ip_barcode = barcode));
+    update drones set sales = sales + @itemVal where (id = ip_id and tag = ip_tag);
+    update restaurants set spent = spent + @itemVal where long_name = ip_long_name;
+    
+    delete from payload where quantity = 0;
+    
 end //
 delimiter ;
 
@@ -698,4 +766,16 @@ of unique ingredients along with the total cost and weight of those ingredients 
 carried by the drones. */
 -- -----------------------------------------------------------------------------
 create or replace view display_service_view as
+<<<<<<< Updated upstream
 select * from delivery_services;
+=======
+select services.Identifier, services.serviceName, services.Location, services.Manager, services.Sales, payloads.Ingredients, payloads.TotalCost, payloads.TotalWeight from 
+(select S.id as Identifier, S.long_name as serviceName, S.home_base as Location, S.manager as Manager, SUM(sales) as Sales
+from delivery_services S
+join drones D on S.id = D.id
+group by S.id) as services join
+(select P.id as Service, count(distinct P.barcode) as Ingredients, sum(price * quantity) as TotalCost, sum(weight * quantity) as TotalWeight
+from payload P inner join ingredients I on P.barcode = I.barcode
+group by P.id) as payloads 
+on services.Identifier = payloads.Service;
+>>>>>>> Stashed changes
