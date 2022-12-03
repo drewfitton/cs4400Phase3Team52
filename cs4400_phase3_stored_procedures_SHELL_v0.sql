@@ -538,9 +538,6 @@ sp_main: begin
 	
     set @homeBase = (select home_base from delivery_services where id = ip_id);
     set @curr = (select hover from drones where (ip_id = id and ip_tag = tag));
-<<<<<<< Updated upstream
-    set @fuelReqTotal = fuel_required(ip_destination, home_base) + fuel_required(curr, ip_destination);
-=======
     set @fuelReqTotal = fuel_required(ip_destination, @homeBase) + fuel_required(@curr, ip_destination);
 	
     if (with recursive swarm (id, tag, fuel)
@@ -583,7 +580,6 @@ sp_main: begin
     update drones
     set fuel = fuel - fuel_required(drones.hover, ip_destination), hover = ip_destination
     where (id, tag) in (select id, tag from swarm);
->>>>>>> Stashed changes
     
 end //
 delimiter ;
@@ -716,7 +712,16 @@ monies spent purchasing ingredients by all of those restaurants. And if an owner
 doesn't fund any restaurants then display zeros for the highs, lows and debt. */
 -- -----------------------------------------------------------------------------
 create or replace view display_owner_view as
-select * from restaurant_owners;
+select owner_info.username, first_name, last_name, address, Restaurants, Locations, High, Low, Debt from
+(select users.username, first_name, last_name, address 
+from users join restaurant_owners
+on users.username = restaurant_owners.username) as owner_info 
+left join
+(select restaurant_owners.username, count(distinct long_name) as Restaurants, count(distinct location) as Locations, ifnull(max(rating), 0) as High, ifnull(min(rating), 0) as Low, ifnull(sum(spent), 0) as Debt
+from restaurant_owners left join restaurants
+on restaurant_owners.username = restaurants.funded_by
+group by username) as owner_data
+on owner_info.username = owner_data.username;
 
 -- [25] display_employee_view()
 -- -----------------------------------------------------------------------------
@@ -726,7 +731,11 @@ experience level, along with the license identifer and piloting experience (if
 applicable), and a 'yes' or 'no' depending on the manager status of the employee. */
 -- -----------------------------------------------------------------------------
 create or replace view display_employee_view as
-select * from employees;
+select distinct pe.username, taxID, salary, hired, experience, LicenseID, "Pilot Experience", Manager from
+(select e.username, e.taxID, e. salary, e.hired, e.experience, if(p.licenseID is not null, p.licenseID, 'n/a') as LicenseID, if(p.experience is not null, p.experience, 'n/a') as "Pilot Experience"
+from employees as e left join pilots as p on e.username = p.username) as pe left join
+(select e.username, if(d.manager is not null, 'yes', 'no') as Manager from employees as e left join delivery_services as d on e.username = d.manager) as em
+on pe.username = em.username order by pe.username;
 
 -- [26] display_pilot_view()
 -- -----------------------------------------------------------------------------
@@ -744,7 +753,19 @@ For each location, it includes the label, x- and y- coordinates, along with the
 number of restaurants, delivery services and drones at that location. */
 -- -----------------------------------------------------------------------------
 create or replace view display_location_view as
-select * from locations;
+select 
+label, x_coord, y_coord,
+ifnull(count(distinct restaurants.long_name), 0) as Restaurants,
+ifnull(count(distinct delivery_services.long_name), 0) as Services,
+ifnull(count(distinct tag), 0) as Drones
+from locations
+left join restaurants
+on locations.label = restaurants.location
+left join delivery_services
+on locations.label = delivery_services.home_base
+left join drones
+on locations.label = drones.hover
+group by locations.label;
 
 -- [28] display_ingredient_view()
 -- -----------------------------------------------------------------------------
@@ -755,7 +776,14 @@ that can be purchased and the lowest and highest prices at which the ingredient 
 sold at that location. */
 -- -----------------------------------------------------------------------------
 create or replace view display_ingredient_view as
-select * from ingredients;
+select iname as Ingredient, hover as Location, sum(quantity) as Available, min(price) as Low, max(price) as High from ingredients
+left join payload 
+on ingredients.barcode = payload.barcode
+left join drones
+on payload.id = drones.id and payload.tag = drones.tag
+group by iname, hover
+having hover is not null
+order by iname;
 
 -- [29] display_service_view()
 -- -----------------------------------------------------------------------------
@@ -766,9 +794,6 @@ of unique ingredients along with the total cost and weight of those ingredients 
 carried by the drones. */
 -- -----------------------------------------------------------------------------
 create or replace view display_service_view as
-<<<<<<< Updated upstream
-select * from delivery_services;
-=======
 select services.Identifier, services.serviceName, services.Location, services.Manager, services.Sales, payloads.Ingredients, payloads.TotalCost, payloads.TotalWeight from 
 (select S.id as Identifier, S.long_name as serviceName, S.home_base as Location, S.manager as Manager, SUM(sales) as Sales
 from delivery_services S
@@ -778,4 +803,4 @@ group by S.id) as services join
 from payload P inner join ingredients I on P.barcode = I.barcode
 group by P.id) as payloads 
 on services.Identifier = payloads.Service;
->>>>>>> Stashed changes
+
