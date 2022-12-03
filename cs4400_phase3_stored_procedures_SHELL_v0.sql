@@ -25,6 +25,10 @@ create procedure add_owner (in ip_username varchar(40), in ip_first_name varchar
 sp_main: begin
     -- ensure new owner has a unique username
     
+    if ((ip_username is null or ip_first_name is null or ip_last_name is null or ip_address is null or ip_birthdate is null)
+    or (ip_username = '' or ip_first_name = '' or ip_last_name = '' or ip_address=''))
+		then leave sp_main; end if;
+	
     if (ip_username not in (select username from users)) then 
 		insert into users (username, first_name, last_name, address, birthdate)
 		values (ip_username, ip_first_name, ip_last_name, ip_address, ip_birthdate);
@@ -51,6 +55,11 @@ sp_main: begin
     -- ensure new owner has a unique username
     -- ensure new employee has a unique tax identifier
     
+    if ((ip_username is null or ip_first_name is null or ip_last_name is null or ip_address is null or ip_birthdate is null
+    or ip_taxID is null or ip_hired is null or ip_employee_experience is null or ip_salary is null)
+	or (ip_username = '' or ip_first_name = '' or ip_last_name = '' or ip_address = '' or ip_taxID = '' or ip_employee_experience < 0 or ip_salary < 0))
+		then leave sp_main; end if;
+        
     if (ip_username not in (select username from employees) and ip_taxID not in (select taxID from employees))
     then 
 		insert into users
@@ -75,6 +84,10 @@ create procedure add_pilot_role (in ip_username varchar(40), in ip_licenseID var
 sp_main: begin
     -- ensure new employee exists
     -- ensure new pilot has a unique license identifier
+
+    if ((ip_username is null or ip_licenseID is null or ip_pilot_experience is null)
+	or (ip_username = '' or ip_licenseID = '' or ip_pilot_experience < 0))
+		then leave sp_main; end if;
     
     if (ip_username in (select username from employees) and ip_licenseID not in (select licenseID from pilots))
     then insert into pilots (username, licenseID, pilot_experience)
@@ -93,6 +106,9 @@ delimiter //
 create procedure add_worker_role (in ip_username varchar(40))
 sp_main: begin
     -- ensure new employee exists
+    
+    if (ip_username is null or ip_username = '')
+		then leave sp_main; end if;
     
     if (ip_username in (select username from employees)) then
 		insert into workers (username)
@@ -113,6 +129,10 @@ create procedure add_ingredient (in ip_barcode varchar(40), in ip_iname varchar(
 	in ip_weight integer)
 sp_main: begin
 	-- ensure new ingredient doesn't already exist
+    
+    if ((ip_barcode is null or ip_iname is null or ip_weight is null)
+	or (ip_barcode = '' or ip_iname = '' or ip_weight < 0))
+		then leave sp_main; end if;
     
     if (ip_barcode not in (select barcode from ingredients)) then
 		insert into ingredients (barcode, iname, weight)
@@ -138,6 +158,10 @@ sp_main: begin
 	-- ensure new drone doesn't already exist
     -- ensure that the delivery service exists
     -- ensure that a valid pilot will control the drone
+    
+	if ((ip_id is null or ip_tag is null or ip_fuel is null or ip_capacity is null or ip_sales is null or ip_flown_by is null)
+	or (ip_id = '' or ip_tag = '' or ip_fuel < 0  or ip_fuel > 100 or ip_capacity < 0 or ip_sales < 0 or ip_flown_by = ''))
+		then leave sp_main; end if;
     
     if (ip_id in (select id from delivery_services)
 	and ip_tag not in (select tag from drones where ip_id = id)
@@ -165,6 +189,10 @@ sp_main: begin
     -- ensure that the location is valid
     -- ensure that the rating is valid (i.e., between 1 and 5 inclusively)
     
+    if ((ip_long_name is null or ip_rating is null or ip_spent is null or ip_location is null)
+	or (ip_long_name = '' or ip_rating < 0 or ip_rating > 5 or ip_spent < 0 or ip_location = ''))
+		then leave sp_main; end if;
+    
     if (ip_long_name not in (select long_name from restaurants)
     and ip_location in (select label from locations)
     and ip_rating between 1 and 5) then
@@ -188,6 +216,10 @@ sp_main: begin
 	-- ensure new delivery service doesn't already exist
     -- ensure that the home base location is valid
     -- ensure that the manager is valid
+    
+    if ((ip_id is null or ip_long_name is null or ip_home_base is null or ip_manager is null)
+	or (ip_id = '' or ip_long_name = '' or ip_home_base = '' or ip_manager = ''))
+		then leave sp_main; end if;
     
     if (ip_id not in (select id from delivery_services)
     and ip_home_base in (select label from locations)
@@ -214,6 +246,10 @@ sp_main: begin
 	-- ensure new location doesn't already exist
     -- ensure that the coordinate combination is distinct
     
+    if ((ip_label is null or ip_x_coord is null or ip_y_coord is null or ip_space is null)
+	or (ip_label = '' or ip_space < 0))
+		then leave sp_main; end if;
+    
     if (ip_label not in (select label from locations)
     and (ip_x_coord not in (select x_coord from locations) or ip_y_coord not in (select y_coord from locations))) then
 		insert into locations (label, x_coord, y_coord, space)
@@ -234,6 +270,10 @@ delimiter //
 create procedure start_funding (in ip_owner varchar(40), in ip_long_name varchar(40))
 sp_main: begin
 	-- ensure the owner and restaurant are valid
+    
+    if ((ip_owner is null or ip_long_name is null)
+	or (ip_owner = '' or ip_long_name = ''))
+		then leave sp_main; end if;
     
     if (ip_long_name in (select long_name from restaurants)
     and ip_owner in (select username from restaurant_owners)) then
@@ -258,6 +298,10 @@ sp_main: begin
 	-- ensure that the employee and delivery service are valid
     -- ensure that the employee isn't a manager for another service
 	-- ensure that the employee isn't actively controlling drones for another service
+    
+    if ((ip_username is null or ip_id is null)
+	or (ip_username = '' or ip_id = ''))
+		then leave sp_main; end if;
     
     if (ip_username in (select username from work_for where id = ip_id))
 		then leave sp_main; end if;
@@ -291,6 +335,10 @@ sp_main: begin
     -- ensure that the employee isn't an active manager
 	-- ensure that the employee isn't controlling any drones
     
+    if ((ip_username is null or ip_id is null)
+	or (ip_username = '' or ip_id = ''))
+		then leave sp_main; end if;
+    
     if ip_username not in (select username from work_for where ip_id = id)
 		then leave sp_main; end if;
     if ip_username in (select manager from delivery_services)
@@ -320,6 +368,10 @@ sp_main: begin
 	-- ensure that the employee is not flying any drones
     -- ensure that the employee isn't working for any other services
     -- add the worker role if necessary
+    
+    if ((ip_username is null or ip_id is null)
+	or (ip_username = '' or ip_id = ''))
+		then leave sp_main; end if;
     
     if ip_username in (select username from work_for where id != ip_id)
 		then leave sp_main; end if;
@@ -351,6 +403,10 @@ sp_main: begin
 	-- ensure that the selected drone is owned by the same service and is a leader and not follower
 	-- ensure that the employee isn't a manager
     -- ensure that the employee is a valid pilot
+    
+    if ((ip_username is null or ip_id is null or ip_tag is null)
+	or (ip_username = '' or ip_id = ''))
+		then leave sp_main; end if;
     
     if ip_username not in (select username from work_for where id = ip_id)
 		then leave sp_main; end if;
@@ -385,6 +441,10 @@ sp_main: begin
 	-- ensure that the swarm leader drone is directly controlled
 	-- ensure that the drones are at the same location
     
+    if ((ip_id is null or ip_tag is null or ip_swarm_leader_tag is null)
+	or (ip_id = ''))
+		then leave sp_main; end if;
+    
     if ip_swarm_leader_tag = ip_tag
 		then leave sp_main; end if;
 	if ip_id not in (select id from drones where tag = ip_tag)
@@ -415,6 +475,10 @@ delimiter //
 create procedure leave_swarm (in ip_id varchar(40), in ip_swarm_tag integer)
 sp_main: begin
 	-- ensure that the selected drone is owned by the service and flying in a swarm
+    
+    if ((ip_id is null or ip_swarm_tag is null)
+	or (ip_id = ''))
+		then leave sp_main; end if;
     
     if ip_swarm_tag in (select tag from drones where (id = ip_id and flown_by is null))then
     
@@ -454,6 +518,10 @@ sp_main: begin
 	-- ensure that the drone has sufficient capacity to carry the new packages
     -- add more of the ingredient to the drone
     
+    if ((ip_id is null or ip_tag is null or ip_barcode is null or ip_more_packages is null or ip_price is null)
+	or (ip_id = '' or ip_barcode = '' or ip_more_packages < 0 or ip_price < 0))
+		then leave sp_main; end if;
+    
     if (ip_id in (select id from delivery_services)
     and (select hover from drones where (id = ip_id and tag = ip_tag)) = (select home_base from delivery_services where id = ip_id)
     and ip_barcode in (select barcode from ingredients)
@@ -483,6 +551,10 @@ create procedure refuel_drone (in ip_id varchar(40), in ip_tag integer, in ip_mo
 sp_main: begin
 	-- ensure that the drone being switched is valid and owned by the service
     -- ensure that the drone is located at the service home base
+    
+    if ((ip_id is null or ip_tag is null or ip_more_fuel is null)
+	or (ip_id = '' or ip_more_fuel < 0))
+		then leave sp_main; end if;
     
     if (ip_tag in (select tag from drones)
     and ip_id in (select id from delivery_services)
@@ -528,6 +600,10 @@ sp_main: begin
     -- ensure that the drone isn't already at the location
     -- ensure that the drone/swarm has enough fuel to reach the destination and (then) home base
     -- ensure that the drone/swarm has enough space at the destination for the flight
+    
+    if ((ip_id is null or ip_tag is null or ip_destination is null)
+	or (ip_id = '' or ip_destination = ''))
+		then leave sp_main; end if;
     
     if ip_tag not in (select tag from drones where ip_id = id)
 		then leave sp_main; end if;
@@ -605,6 +681,10 @@ sp_main: begin
     -- update the monies spent and gained for the drone and restaurant
     -- ensure all quantities in the payload table are greater than zero
     
+    if ((ip_long_name is null or ip_id is null or ip_tag is null or ip_barcode is null or ip_quantity is null)
+	or (ip_long_name = '' or ip_id = '' or ip_barcode = '' or ip_quantity < 0))
+		then leave sp_main; end if;
+    
     if (ip_long_name not in (select long_name from restaurants))
 		then leave sp_main; end if;
 	if (ip_tag not in (select tag from drones where ip_id = id))
@@ -637,6 +717,9 @@ sp_main: begin
 	-- ensure that the ingredient exists
     -- ensure that the ingredient is not being carried by any drones
     
+    if (ip_barcode is null or ip_barcode = '')
+		then leave sp_main; end if;
+    
     if (ip_barcode in (select barcode from ingredients)
 	and ip_barcode not in (select barcode from payload)) then
         delete from ingredients where (barcode = ip_barcode);
@@ -658,6 +741,9 @@ sp_main: begin
 	-- ensure that the drone exists
     -- ensure that the drone is not carrying any ingredients
 	-- ensure that the drone is not leading a swarm
+    
+    if ((ip_id is null or ip_tag is null) or (ip_id = '' or ip_tag = ''))
+		then leave sp_main; end if;
     
     if ip_tag not in (select tag from drones where id = ip_id)
 		then leave sp_main; end if;
@@ -685,6 +771,9 @@ sp_main: begin
 	-- ensure that the pilot exists
     -- ensure that the pilot is not controlling any drones
     -- remove all remaining information unless the pilot is also a worker
+    
+     if (ip_username is null or ip_username = '')
+		then leave sp_main; end if;
     
 	if ip_username not in (select username from pilots)
 		then leave sp_main; end if;
