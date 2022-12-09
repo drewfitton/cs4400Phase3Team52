@@ -8,11 +8,11 @@ import mysql.connector
 # Create a Flask Instance
 app = Flask(__name__)
 # Add database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Soccer.6678@localhost/restaurant_supply_express'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:rootPass@localhost/restaurant_supply_express'
 mydb = mysql.connector.connect(
     host='localhost',
     user='root',
-    passwd='Soccer.6678',
+    passwd='rootPass',
     db='restaurant_supply_express'
 )
 
