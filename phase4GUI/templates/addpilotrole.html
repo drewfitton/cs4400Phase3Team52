@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br>Add Pilot Role</br>
+<h1></h1>
+<form action="/addpilotrole" METHOD="POST">
+    <div class="mb-3">
+      <label for="exampleInputEmail1" class="form-label">Username</label>
+      <input type="text" class="form-control" id="pilot_username" name="username">
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">License ID</label>
+        <input type="text" class="form-control" id="pilot_licenseID" name="licenseID">
+    </div>
+    <div class="mb-3">
+      <label for="exampleInputPassword1" class="form-label">Pilot Experience</label>
+      <input type="integer" class="form-control" name="experience">
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+  </form>
+{% endblock %}

@@ -8,11 +8,11 @@ import mysql.connector
 # Create a Flask Instance
 app = Flask(__name__)
 # Add database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:rootPass@localhost/restaurant_supply_express'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:Soccer.6678@localhost/restaurant_supply_express'
 mydb = mysql.connector.connect(
     host='localhost',
     user='root',
-    passwd='rootPass',
+    passwd='Soccer.6678',
     db='restaurant_supply_express'
 )
 
@@ -66,7 +66,7 @@ def owner():
             db_cursor.commit()
             return redirect('/owner')
         except:
-            return render_template('employee.html', form = form)
+            return "Invalid input values"
 
     else:
         return render_template('owner.html',
@@ -98,17 +98,39 @@ def employee():
         experience_ = request.form['experience']
         salary_ = request.form['salary']
         db_cursor = mydb.cursor()
-        res = db_cursor.callproc('add_employee', [user_name, f_name, l_name, addy, b_date, tax_ID, date_hired, experience_, salary_])
+        db_cursor.callproc('add_employee', [user_name, f_name, l_name, addy, b_date, tax_ID, date_hired, experience_, salary_])
 
         try:
-            db_cursor.session.add(res)
-            db_cursor.commit()
+            mydb.commit()
+            mydb.close()
             return redirect('/employee')
         except:
-            return render_template('employee.html', form = form)
+            return "Invalid input values"
     else:
-        return render_template('employee.html',
-            form = form)
+        return render_template('employee.html', form = form)
+
+class pilotRoleForm(FlaskForm):
+    username = StringField("Username", validators=[DataRequired()])
+    licenseID = StringField("LicenseID", validators=[DataRequired()])
+    experience = IntegerField("Pilot Experience", validators=[DataRequired()])
+    submit = SubmitField("Add Role")
+
+@app.route('/addpilotrole', methods=['GET', 'POST'])
+def addpilotrole():
+    form = pilotRoleForm()
+    if request.method == "POST":
+
+        db_cursor = mydb.cursor()
+        db_cursor.callproc('add_pilot_role', [request.form['username'], request.form['licenseID'], request.form['experience']])
+
+        try:
+            mydb.commit()
+            mydb.close()
+            return redirect('/addpilotrole')
+        except:
+            return "Invalid input values"
+    else:
+        return render_template('addpilotrole.html', form = form)
 
 @app.route('/view/<type>')
 def view_table(type):
