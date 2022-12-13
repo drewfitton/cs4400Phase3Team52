@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<br></br>
+<center>
+    <h1>{{procTitle}}</h1>
+</center>
+<br></br>
+<form action="" method="POST">
+    <dl>
+        {{ form.hidden_tag() }}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+            {% if field.widget.input_type == 'submit' %}
+                <dt>{{ field(class="btn btn-success") }}
+            {% else %}
+                <dt>{{ field.label(class="form-label") }}
+                <dt>{{ field(class="form-control") }}
+                <br>
+            {% endif %}
+        {% endfor %}
+    </dl>
+</form>
+
+{% endblock %}
