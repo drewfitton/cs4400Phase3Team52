@@ -11,8 +11,7 @@ class add_service_form(FlaskForm):
     addButton = SubmitField("Add")
 
     def getInputs(form):
-        inputs = [form['ip_id'], form['ip_long_name'], form['ip_home_base'], form['ip_manager']]
-        return inputs
+        return [form['ip_id'], form['ip_long_name'], form['ip_home_base'], form['ip_manager']]
 
 # add_employee_form
 class add_employee_form(FlaskForm):
@@ -28,8 +27,7 @@ class add_employee_form(FlaskForm):
     addButton = SubmitField("Add")
 
     def getInputs(form):
-        inputs = [form['ip_username'], form['ip_first_name'], form['ip_last_name'], form['ip_address'], form['ip_birthdate'], form['ip_taxID'], form['ip_hired'], form['ip_employee_experience'], form['ip_salary']]
-        return inputs
+        return [form['ip_username'], form['ip_first_name'], form['ip_last_name'], form['ip_address'], form['ip_birthdate'], form['ip_taxID'], form['ip_hired'], form['ip_employee_experience'], form['ip_salary']]
 
 # hire_employee_form
 class hire_employee_form(FlaskForm):
@@ -38,8 +36,7 @@ class hire_employee_form(FlaskForm):
     hireButton = SubmitField("Hire")
 
     def getInputs(form):
-        inputs = [form['ip_username'], form['ip_id']]
-        return inputs
+        return [form['ip_username'], form['ip_id']]
 
 # fire_employee_form
 class fire_employee_form(FlaskForm):
@@ -48,8 +45,7 @@ class fire_employee_form(FlaskForm):
     fireButton = SubmitField("Fire")
 
     def getInputs(form):
-        inputs = [form['ip_username'], form['ip_id']]
-        return inputs
+        return [form['ip_username'], form['ip_id']]
 
 # add_pilot_role_form
 class add_pilot_role_form(FlaskForm):
@@ -59,8 +55,7 @@ class add_pilot_role_form(FlaskForm):
     addButton = SubmitField("Add")
 
     def getInputs(form):
-        inputs = [form['ip_username'], form['ip_licenseID'], form['ip_pilot_experience']]
-        return inputs
+        return [form['ip_username'], form['ip_licenseID'], form['ip_pilot_experience']]
 
 # remove_pilot_role_form
 class remove_pilot_role_form(FlaskForm):
@@ -68,8 +63,7 @@ class remove_pilot_role_form(FlaskForm):
     removeButton = SubmitField("Remove")
 
     def getInputs(form):
-        inputs = [form['ip_username']]
-        return inputs
+        return [form['ip_username']]
 
 # add_worker_role_form
 class add_worker_role_form(FlaskForm):
@@ -88,8 +82,7 @@ class add_ingredient_form(FlaskForm):
     addButton = SubmitField("Add")
 
     def getInputs(form):
-        inputs = [form['ip_barcode'], form['ip_iname'], form['ip_weight']]
-        return inputs
+        return [form['ip_barcode'], form['ip_iname'], form['ip_weight']]
 
 # remove_ingredient_form
 class remove_ingredient_form(FlaskForm):
@@ -97,8 +90,7 @@ class remove_ingredient_form(FlaskForm):
     removeButton = SubmitField("Remove")
 
     def getInputs(form):
-        inputs = [form['ip_barcode']]
-        return inputs
+        return [form['ip_barcode']]
 
 # add_drone_form
 class add_drone_form(FlaskForm):
@@ -111,8 +103,7 @@ class add_drone_form(FlaskForm):
     addButton = SubmitField("Add")
 
     def getInputs(form):
-        inputs = [form['ip_id'], form['ip_tag'], form['ip_fuel'], form['ip_capacity'], form['ip_sales'], form['ip_flown_by']]
-        return inputs
+        return [form['ip_id'], form['ip_tag'], form['ip_fuel'], form['ip_capacity'], form['ip_sales'], form['ip_flown_by']]
 
 # remove_drone_form
 class remove_drone_form(FlaskForm):
@@ -121,8 +112,7 @@ class remove_drone_form(FlaskForm):
     removeButton = SubmitField("Remove")
 
     def getInputs(form):
-        inputs = [form['ip_id'], form['ip_tag']]
-        return inputs
+        return [form['ip_id'], form['ip_tag']]
 
 # add_restaurant_form
 class add_restaurant_form(FlaskForm):
@@ -133,8 +123,7 @@ class add_restaurant_form(FlaskForm):
     addButton = SubmitField("Add")
 
     def getInputs(form):
-        inputs = [form['ip_long_name'], form['ip_rating'], form['ip_spent'], form['ip_location']]
-        return inputs
+        return [form['ip_long_name'], form['ip_rating'], form['ip_spent'], form['ip_location']]
 
 # load_drone_form
 class load_drone_form(FlaskForm):
@@ -146,8 +135,7 @@ class load_drone_form(FlaskForm):
     loadButton = SubmitField("Load")
 
     def getInputs(form):
-        inputs = [form['ip_id'], form['ip_tag'], form['ip_barcode'], form['ip_more_packages'], form['ip_price']]
-        return inputs
+        return [form['ip_id'], form['ip_tag'], form['ip_barcode'], form['ip_more_packages'], form['ip_price']]
 
 # refuel_drone_form
 class refuel_drone_form(FlaskForm):
@@ -157,8 +145,7 @@ class refuel_drone_form(FlaskForm):
     refuelButton = SubmitField("Refuel")
 
     def getInputs(form):
-        inputs = [form['ip_id'], form['ip_tag'], form['ip_more_fuel']]
-        return inputs
+        return [form['ip_id'], form['ip_tag'], form['ip_more_fuel']]
 
 # takeover_drone_form
 class takeover_drone_form(FlaskForm):
@@ -168,8 +155,7 @@ class takeover_drone_form(FlaskForm):
     takeoverButton = SubmitField("Takeover Drone")
 
     def getInputs(form):
-        inputs = [form['ip_username'], form['ip_id'], form['ip_tag']]
-        return inputs
+        return [form['ip_username'], form['ip_id'], form['ip_tag']]
 
 # fly_drone_form
 class fly_drone_form(FlaskForm):
@@ -179,8 +165,7 @@ class fly_drone_form(FlaskForm):
     flyButton = SubmitField("Fly")
 
     def getInputs(form):
-        inputs = [form['ip_id'], form['ip_tag'], form['ip_destination']]
-        return inputs
+        return [form['ip_id'], form['ip_tag'], form['ip_destination']]
 
 # join_swarm_form
 class join_swarm_form(FlaskForm):
@@ -200,8 +185,7 @@ class leave_swarm_form(FlaskForm):
     leaveButton = SubmitField("Leave")
 
     def getInputs(form):
-        inputs = [form['ip_id'], form['ip_tag']]
-        return inputs
+        return [form['ip_id'], form['ip_tag']]
 
 # add_owner_form
 class add_owner_form(FlaskForm):
@@ -213,8 +197,7 @@ class add_owner_form(FlaskForm):
     addButton = SubmitField("Add")
 
     def getInputs(form):
-        inputs = [form['ip_username'], form['ip_first_name'], form['ip_last_name'], form['ip_address'], form['ip_birthdate']]
-        return inputs
+        return [form['ip_username'], form['ip_first_name'], form['ip_last_name'], form['ip_address'], form['ip_birthdate']]
 
 # start_funding_form
 class start_funding_form(FlaskForm):
@@ -223,8 +206,7 @@ class start_funding_form(FlaskForm):
     fundButton = SubmitField("Fund")
 
     def getInputs(form):
-        inputs = [form['ip_owner'], form['ip_long_name']]
-        return inputs
+        return [form['ip_owner'], form['ip_long_name']]
 
 # add_location_form
 class add_location_form(FlaskForm):

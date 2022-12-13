@@ -9,15 +9,15 @@ import forms
 # Create a Flask Instance
 app = Flask(__name__)
 # Add database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:mC36W2!mC36W2!@localhost/restaurant_supply_express'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:PASSWORD@localhost/restaurant_supply_express'
 mydb = mysql.connector.connect(
     host='localhost',
     user='root',
-    passwd='mC36W2!mC36W2!',
+    passwd='PASSWORD',
     db='restaurant_supply_express'
 )
 
-app.config['SECRET_KEY'] = "Socce4rBalls"
+app.config['SECRET_KEY'] = "Group52"
 app.last_page = '/'
 
 def dictfetchall(cursor):
@@ -137,11 +137,4 @@ def display_proc_form(proc):
         mydb.commit()
         db_cursor.close()
         return redirect(app.last_page)
-        try:
-            db_cursor.callproc(proc, inputs)
-            mydb.commit()
-            db_cursor.close()
-            return redirect(last_page)
-        except:
-            return "Error with " + str(proc) + " procedure modifying database."
     return render_template('form.html', form = form, procTitle = procTitle)
