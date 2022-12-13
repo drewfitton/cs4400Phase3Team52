@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<center>
+    <br></br>
+    <h1>Workers</h1>
+</center>
+<table class="table table-hover">
+    <thead>
+      <tr>
+        {% for title in table[0]%}
+        <th scope="col">{{title}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+        {% for title in table %}
+        <tr>
+            {% for field in title %}
+                    <td>{{title[field]}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    
+    </tbody>
+</table>
+<br></br>
+<center>
+    <a class="btn btn-success" style="margin-right:20px;" href="{{url_for('display_proc_form', proc='load_drone')}}">Load Drone</a>
+    <a class="btn btn-success" href="{{url_for('display_proc_form', proc='refuel_drone')}}">Refuel Drone</a>
+</center>
+<br></br>
+{% endblock %}

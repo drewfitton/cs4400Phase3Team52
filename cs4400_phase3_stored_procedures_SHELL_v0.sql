@@ -90,7 +90,7 @@ sp_main: begin
 		then leave sp_main; end if;
     
     if (ip_username in (select username from employees) and ip_licenseID not in (select licenseID from pilots))
-    then insert into pilots (username, licenseID, pilot_experience)
+    then insert into pilots (username, licenseID, experience)
 		values (ip_username, ip_licenseID, ip_pilot_experience);
     end if;
     
@@ -223,9 +223,11 @@ sp_main: begin
     
     if (ip_id not in (select id from delivery_services)
     and ip_home_base in (select label from locations)
+    and ip_manager not in (select manager from delivery_services)
     and ip_manager in (select username from workers)) then
 		insert into delivery_services (id, long_name, home_base, manager)
         values (ip_id, ip_long_name, ip_home_base, ip_manager);
+        update work_for set id = ip_id where ip_manager = username;
     end if;
     
 end //
@@ -521,21 +523,39 @@ sp_main: begin
     if ((ip_id is null or ip_tag is null or ip_barcode is null or ip_more_packages is null or ip_price is null)
 	or (ip_id = '' or ip_barcode = '' or ip_more_packages < 0 or ip_price < 0))
 		then leave sp_main; end if;
+    if (ip_id not in (select id from delivery_services)) then leave sp_main; end if;
+    if (select hover from drones where (id = ip_id and tag = ip_tag)) != (select home_base from delivery_services where id = ip_id) then leave sp_main; end if;
+    if ip_barcode not in (select barcode from ingredients) then leave sp_main; end if;
+    if ip_more_packages <= 0 then leave sp_main; end if;
     
-    if (ip_id in (select id from delivery_services)
-    and (select hover from drones where (id = ip_id and tag = ip_tag)) = (select home_base from delivery_services where id = ip_id)
-    and ip_barcode in (select barcode from ingredients)
-    and ip_more_packages > 0
-    and (select capacity from drones where (id = ip_id and tag = ip_tag)) - (select sum(quantity) from payload where (id = ip_id and tag = ip_tag)) >= ip_more_packages) then
-		if (ip_barcode in (select barcode from payload where (id = ip_id and tag = ip_tag))) then
-			update payload 
-            set quantity = (select quantity from payload where (id = ip_id and tag = ip_tag and barcode = ip_barcode)) + ip_more_packages
-            where (id = ip_id and tag = ip_tag and barcode = ip_barcode);
-		else
-			insert into payload (id, tag, barcode, quantity, price)
-            values (ip_id, ip_tag, ip_barcode, ip_more_packages, ip_price);
-		end if;
+    if (select count(*) from payload where (id = ip_id and tag = ip_tag)) > 0 and (select capacity from drones where (id = ip_id and tag = ip_tag)) - (select sum(quantity) from payload where (id = ip_id and tag = ip_tag)) < ip_more_packages then
+		leave sp_main; end if;
+	if (select capacity from drones where (id = ip_id and tag = ip_tag)) < ip_more_packages then
+		leave sp_main; end if;
+        
+	if ip_barcode in (select barcode from payload where (id = ip_id and tag = ip_tag)) then
+		update payload
+        set quantity = (select quantity from payload where (id = ip_id and tag = ip_tag and barcode = ip_barcode)) + ip_more_packages
+        where (id = ip_id and tag = ip_tag and barcode = ip_barcode);
+	else
+		insert into payload (id, tag, barcode, quantity, price)
+        values (ip_id, ip_tag, ip_barcode, ip_more_packages, ip_price);
 	end if;
+
+    -- if (ip_id in (select id from delivery_services)
+--     and (select hover from drones where (id = ip_id and tag = ip_tag)) = (select home_base from delivery_services where id = ip_id)
+--     and ip_barcode in (select barcode from ingredients)
+--     and ip_more_packages > 0    
+--     and (select capacity from drones where (id = ip_id and tag = ip_tag)) - (select sum(ifnull(quantity, 0)) from payload where (id = ip_id and tag = ip_tag)) >= ip_more_packages) then
+-- 		if (ip_barcode in (select barcode from payload where (id = ip_id and tag = ip_tag))) then
+-- 			update payload 
+--             set quantity = (select quantity from payload where (id = ip_id and tag = ip_tag and barcode = ip_barcode)) + ip_more_packages
+--             where (id = ip_id and tag = ip_tag and barcode = ip_barcode);
+-- 		else
+-- 			insert into payload (id, tag, barcode, quantity, price)
+--             values (ip_id, ip_tag, ip_barcode, ip_more_packages, ip_price);
+-- 		end if;
+-- 	end if;
     
 end //
 delimiter ;
@@ -560,6 +580,9 @@ sp_main: begin
     and ip_id in (select id from delivery_services)
     and (select hover from drones where (ip_id = id and ip_tag = tag)) = (select home_base from delivery_services where ip_id = id)) then
 		set @newfuel = ((select fuel from drones where (ip_id = id and ip_tag = tag)) + ip_more_fuel);
+        if @newfuel > 100 then 
+			set @newfuel = 100;
+		end if;
 		update drones 
         set fuel = @newfuel
         where (ip_id = id and ip_tag = tag);

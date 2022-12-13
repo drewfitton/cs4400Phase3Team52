@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<center>
+    <br></br>
+    <h1>Drones</h1>
+</center>
+<table class="table table-hover">
+    <thead>
+      <tr>
+        {% for title in table[0]%}
+        <th scope="col">{{title}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+        {% for title in table %}
+        <tr>
+            {% for field in title %}
+                    <td>{{title[field]}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    
+    </tbody>
+</table>
+<br></br>
+<center>
+    <a class="btn btn-success" style="margin-right:20px;" href="{{url_for('display_proc_form', proc='add_ingredient')}}">Add Ingredient</a>
+    <a class="btn btn-success" style="margin-right:20px;" href="{{url_for('display_proc_form', proc='add_drone')}}">Add Drone</a>
+    <a class="btn btn-success" style="margin-right:20px;" href="{{url_for('display_proc_form', proc='add_restaurant')}}">Add Restaurant</a>
+    <a class="btn btn-danger" style="margin-right:20px;" href="{{url_for('display_proc_form', proc='remove_ingredient')}}">Remove Ingredient</a>
+    <a class="btn btn-danger" href="{{url_for('display_proc_form', proc='remove_drone')}}">Remove Drone</a>
+</center>
+<br></br>
+{% endblock %}

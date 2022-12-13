@@ -6,22 +6,41 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
                 <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('owner')}}">Owner</a>
+                    <a class="nav-link" href="{{url_for('services')}}">Services</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('employees')}}">Employees</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('employee')}}">Employee</a>
+                    <a class="nav-link" href="{{url_for('drones')}}">Drones</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{url_for('addpilotrole')}}">Add Pilot</a>
+                    <a class="nav-link" href="{{url_for('workers')}}">Workers</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('pilots')}}">Pilots</a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('owners')}}">Owners</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('managers')}}">Managers</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('restaurants')}}">Restaurants</a>
                 </li>
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Database Views
+                    Global Views
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{url_for('view_table', type='Employee')}}">Employee View</a></li>

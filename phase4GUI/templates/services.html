@@ -1,0 +1,35 @@
+{%extends 'base.html'%}
+
+{% block content %}
+<center>
+    <br></br>
+    <h1>Services</h1>
+</center>
+<table class="table table-hover">
+    <thead>
+      <tr>
+        {% for title in table[0]%}
+        <th scope="col">{{title}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+        {% for title in table %}
+        <tr>
+            {% for field in title %}
+                    <td>{{title[field]}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    
+    </tbody>
+</table>
+<br></br>
+<center>
+    <a class="btn btn-success" style="margin-right:20px;" href="{{url_for('display_proc_form', proc='add_service')}}">Add Service</a>
+    <a class="btn btn-success" style="margin-right:20px;" href="{{url_for('display_proc_form', proc='add_employee')}}">Add Employee</a>
+    <a class="btn btn-success" style="margin-right:20px;" href="{{url_for('display_proc_form', proc='hire_employee')}}">Hire Employee</a>
+    <a class="btn btn-danger" style="margin-right:20px;" href="{{url_for('display_proc_form', proc='fire_employee')}}">Fire Employee</a>
+</center>
+<br></br>
+{% endblock %}
